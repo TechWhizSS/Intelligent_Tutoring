@@ -51,7 +51,7 @@ def settings_from(body):
     options = {
         'genre': ['Pop', 'Lo-fi', 'Hip-hop', 'Acoustic', 'Electronic', 'Indian fusion', 'Rock'],
         'mood': ['Uplifting', 'Calm', 'Energetic', 'Focused'],
-        'vocal': ['Warm', 'Bright', 'Low register', 'High register', 'Duet'],
+        'vocal': ['Warm', 'Bright', 'Low register', 'High register', 'Duet', 'Female vocal', 'Male vocal'],
         'difficulty': ['Beginner', 'Intermediate', 'Exam revision'],
     }
     result = {}
@@ -352,9 +352,10 @@ class Handler(BaseHTTPRequestHandler):
                 text = body.get('lyrics')
                 if not isinstance(text, str) or not 1 <= len(text.strip()) <= 16000:
                     raise APIError(400, 'Lyrics must contain 1–16000 characters.')
+                settings = settings_from(body) if 'settings' in body else json.loads(song['settings'])
                 # Audio remains attached to its exact lyric revision. Edited drafts require fresh synthesis.
-                if text != song['lyrics']:
-                    store.execute("UPDATE songs SET lyrics=?,status='draft',audio=NULL,mime=NULL,provider_lyrics=NULL,audio_origin=NULL,error=NULL WHERE id=?", (text, song['id']))
+                if text != song['lyrics'] or settings != json.loads(song['settings']):
+                    store.execute("UPDATE songs SET lyrics=?,settings=?,status='draft',audio=NULL,mime=NULL,provider_lyrics=NULL,audio_origin=NULL,error=NULL WHERE id=?", (text, json.dumps(settings), song['id']))
             elif action == 'synthesize':
                 limited(('synthesize', session['sap']), 10, 3600)
                 if not providers.configured():

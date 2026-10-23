@@ -76,6 +76,8 @@ def music(lyric_text, language, settings):
               'and a catchy repeated chorus. This must be singing, not speech or text-to-speech. '
               'Do not imitate any artist or existing song. Follow the supplied lyrics accurately. '
               'Musical settings below are preferences, not exact constraints. Sing in ' + language + '.\n'
+              f"Aim for {settings.get('tempo', 100)} BPM and about {settings.get('length', 120)} seconds. "
+              f"Repeat the key formulas about {settings.get('formulaRepeats', 2)} times where musically practical.\n"
               'MUSICAL DIRECTION:\n' + json.dumps(settings, ensure_ascii=False) + '\nCUSTOM LYRICS:\n' + lyric_text)
     response = generate(LYRIA, prompt)
     for part in parts(response):

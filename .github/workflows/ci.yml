@@ -1,0 +1,40 @@
+name: Application checks
+on:
+  push:
+    branches: [codex/development]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  application:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python -m compileall -q app scripts tests
+      - run: node --check static/app.js
+      - run: python -m unittest discover -s tests -v
+      - run: pip install openpyxl==3.1.5
+      - run: python scripts/import_syllabus.py
+      - run: git diff --exit-code -- data/catalogue.json
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install playwright==1.62.0
+      - run: playwright install --with-deps chromium
+      - run: python tests/browser_smoke.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-screenshots
+          path: test-results/

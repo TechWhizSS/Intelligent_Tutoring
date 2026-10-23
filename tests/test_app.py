@@ -264,6 +264,35 @@ class APITests(unittest.TestCase):
             synthesize(internal)
         self.assertEqual(self.call('/api/songs')[1][0]['status'],'failed')
 
+    def test_async_synthesis_prevents_duplicate_billable_jobs(self):
+        song=self.draft()
+        started,release=threading.Event(),threading.Event()
+        def provider(*args):
+            started.set()
+            release.wait(timeout=3)
+            return wav_fixture(),'audio/wav','provider returned words'
+        with patch.object(providers,'configured',return_value=True),patch.object(providers,'music',side_effect=provider) as music:
+            path=f"/api/songs/{song['id']}/synthesize"
+            try:
+                status,pending,_=self.call(path,{})
+                self.assertEqual(status,200)
+                self.assertEqual(pending['status'],'generating')
+                self.assertTrue(started.wait(timeout=2))
+                self.assertEqual(self.call(path,{})[0],409)
+            finally:
+                release.set()
+            for _ in range(50):
+                current=self.call('/api/songs')[1][0]
+                if current['status']=='ready':break
+                time.sleep(.02)
+            self.assertEqual(current['status'],'ready')
+            self.assertEqual(music.call_count,1)
+            # Changing a musical preference must affect the saved song and invalidate old audio.
+            status,changed,_=self.call(f"/api/songs/{song['id']}/save",{'lyrics':song['lyrics'],'settings':{'tempo':140,'genre':'Acoustic'}})
+            self.assertEqual(changed['settings']['tempo'],140)
+            self.assertEqual(changed['settings']['genre'],'Acoustic')
+            self.assertIsNone(changed['audioUrl'])
+
 
 if __name__=='__main__':
     unittest.main(verbosity=2)

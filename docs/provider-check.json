@@ -1,0 +1,19 @@
+{
+  "configured": false,
+  "lyricsModel": "gemini-3.8-flash",
+  "musicModel": "lyria-3.5",
+  "liveAudioVerified": false,
+  "checks": [
+    {
+      "model": "gemini-3.8-flash",
+      "status": "blocked",
+      "reason": "GEMINI_API_KEY is not configured. Live Gemini lyrics and Lyria sung audio are unavailable. Add a billed API key and allow generativelanguage.googleapis.com, then run the provider check."
+    },
+    {
+      "model": "lyria-3.5",
+      "status": "blocked",
+      "reason": "GEMINI_API_KEY is not configured. Live Gemini lyrics and Lyria sung audio are unavailable. Add a billed API key and allow generativelanguage.googleapis.com, then run the provider check."
+    }
+  ],
+  "mode": "demo"
+}
