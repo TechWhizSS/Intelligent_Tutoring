@@ -1,0 +1,12 @@
+Sr. No,Unit,Chapter,Sub-Topic,Duration (Hrs),Mapped Song,Artist,Connection / Reason
+28,Unit 5,Vector Calculus,Gradient,1,Higher and Higher,Jackie Wilson,"The gradient points in the direction of steepest increase — the way that takes you higher, fastest."
+29,Unit 5,Vector Calculus,Directional Derivative,1,Go Your Own Way,Fleetwood Mac,"The rate of change depends on the direction you choose to move in — your own particular way, not just along an axis."
+30,Unit 5,Vector Calculus,Divergence,1,Breakaway,Kelly Clarkson,Divergence measures net outward flux — field lines spreading out and breaking away from a point.
+31,Unit 5,Vector Calculus,Curl,1,Vertigo,U2,"Curl captures local rotation and circulation in a field — the same spinning, dizzying sense as the song's title."
+32,Unit 5,Vector Calculus,Scalar Potential,0.5,Firework,Katy Perry,"A conservative field hides an underlying potential function within it, waiting to be revealed — its hidden potential."
+33,Unit 5,Vector Calculus,Harmonic Function,0.5,Harmony Hall,Vampire Weekend,"A function satisfying Laplace's equation is, by definition, called 'harmonic' — a direct title match."
+34,Unit 5,Vector Calculus,Line Integral,1,The Long and Winding Road,The Beatles,Work done by a force field is computed along a curve C — a literal road/path being integrated over.
+35,Unit 5,Vector Calculus,Surface Integral,1,Riptide,Vance Joy,A surface integral measures flux — the flow of a field current passing through a surface.
+36,Unit 5,Vector Calculus,Green's Theorem,1,Boundaries,Quinn XCII,Green's theorem ties a line integral around a region's boundary to a double integral over its interior.
+37,Unit 5,Vector Calculus,Stokes' Theorem,0.5,Bigger,Beyonce,Stokes' theorem generalises Green's theorem to curved surfaces in three dimensions — a bigger version of the same idea.
+38,Unit 5,Vector Calculus,Gauss Divergence Theorem,0.5,Man in the Mirror,Michael Jackson,"The theorem relates what's happening inside a solid (divergence, volume) to what appears on its outer surface — the inside reflected outward."
