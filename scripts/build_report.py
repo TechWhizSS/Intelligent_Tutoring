@@ -10,15 +10,15 @@ rows = []
 for t in CATALOGUE['topics']:
     rows.append(dict(zip(fields, [t['id'], t['subject'], t['unit'], t['chapter'], t['title'], t['source'], t['locator'],
         'Uploaded summary + supplemental guidance; full notes not supplied',
-        'Offline template available; live Gemini unverified', 'Offline template available; live Gemini unverified',
-        '2 supplemental questions ready', 'Blocked: Google API key not configured'])))
+        'Offline template available; live planner unverified', 'Offline template available; live planner unverified',
+        '2 supplemental questions ready', 'Blocked: ElevenLabs Music API key not configured'])))
 with (ROOT / 'docs/syllabus-completeness.csv').open('w', encoding='utf-8-sig', newline='') as file:
-    writer = csv.DictWriter(file, fields)
+    writer = csv.DictWriter(file, fields, lineterminator='\n')
     writer.writeheader()
     writer.writerows(rows)
 text = ['# Semester I syllabus completeness', '',
     'Baseline: 38 Calculus topics and 53 BEEE topics; all 10 uploaded units indexed in order.', '',
-    'Every topic has its exact uploaded summary/formula reference, a supplemental Hindi explanation, supplemental revision guidance, English and Hindi offline lyric templates, and two supplemental quiz questions. Full textbook notes were not supplied. Live Gemini and Lyria generation are unverified because no API key is configured. There are no bundled generated songs. Runtime reports show your actual saved draft/audio readiness.', '',
+    'Every topic has its exact uploaded summary/formula reference, a supplemental Hindi explanation, supplemental revision guidance, English and Hindi offline lyric templates, and two supplemental quiz questions. Full textbook notes were not supplied. Live ElevenLabs lyric planning and music generation are unverified because no API key is configured. There are no bundled generated songs. Runtime reports show your actual saved draft/audio readiness.', '',
     'Source locations and every status column are in [the complete CSV](syllabus-completeness.csv).', '',
     '| Subject | Unit | Chapter | Uploaded topic | Content | Lyrics EN / HI | Quiz | Audio |',
     '| --- | --- | --- | --- | --- | --- | --- | --- |']

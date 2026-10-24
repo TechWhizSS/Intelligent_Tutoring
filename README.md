@@ -4,7 +4,7 @@ A full-stack, mobile-friendly educational music studio for **MBA Tech → CE →
 
 **Demonstrable now:** sample SAP login, all 91 uploaded topic headings, source-linked summaries and formulas, supplemental Hindi explanations, English/Hindi lyric templates, editable/saved drafts, quizzes, SQLite song library, admin source uploads and approval, a browser audio player with seeking and downloads, and a complete syllabus readiness report.
 
-**Live sung music is blocked in the supplied environment:** no `GEMINI_API_KEY` is configured, and the Google API host is absent from the environment allowlist. The official Gemini/Lyria adapter is implemented and contract-tested with mocks, but no live provider generation has been verified. Demo mode does not invent audio, use TTS, or substitute commercial song recordings. Full textbook notes were not uploaded; the app labels uploaded summaries and supplemental guidance separately.
+**Live sung music is blocked in the supplied environment:** no `ELEVENLABS_API_KEY` is configured, and `api.elevenlabs.io` is absent from the environment allowlist. The official ElevenLabs Music adapter is implemented and contract-tested with mocks, but no live provider generation has been verified. The app no longer calls Google APIs. Demo mode does not invent audio, use TTS, or substitute commercial song recordings. Full textbook notes were not uploaded; the app labels uploaded summaries and supplemental guidance separately.
 
 ## Launch
 
@@ -27,7 +27,7 @@ Open **http://localhost:8000**. On a cloud host, expose/forward port 8000 throug
 
 ## Turn on real sung music
 
-Configure the environment's secret binding `GEMINI_API_KEY` with an API key authorized for Gemini and Lyria 3.5. Enable required billing/model permissions and outbound HTTPS to **generativelanguage.googleapis.com**. Restart the server after changing environment variables. Keep the key out of chat, source control, and browser code.
+Configure the environment's secret binding `ELEVENLABS_API_KEY` with a key from an ElevenLabs account with **paid Music API access** and credits. Allow outbound HTTPS to **api.elevenlabs.io**. Restart the server after changing environment variables. Keep the key out of chat, source control, and browser code.
 
 For a shell-configured instance:
 
@@ -41,9 +41,9 @@ python3 scripts/check_providers.py
 python3 -m app.server
 ```
 
-The credential check calls model metadata endpoints; it does **not** buy an audio generation and does **not** certify generation. In the UI choose **Live Gemini**, generate and review lyrics, then click **Synthesize sung music**. Synthesis runs in the background; completed provider audio appears in the player and library. Exact tempo, voice, genre, length and repeated-formula adherence are prompt preferences, not guaranteed API controls. Live errors remain explicit; no silent demo fallback occurs.
+The credential check calls the ElevenLabs composition planner, documented as not consuming credits. It does **not** buy an audio generation and does **not** certify sung output. In the UI choose **Live ElevenLabs lyric planner**, generate and review lyrics, then click **Synthesize sung music**. Synthesis runs in the background; completed provider audio appears in the player and library. Edited lyrics, style arrays and section durations are sent as native composition-plan fields. Tempo, voice, mood and formula repetition remain style preferences. Final delivery and Hindi singing quality must be checked in actual output. Live errors remain explicit; no silent demo fallback occurs.
 
-The server uses official REST `models/{model}:generateContent` calls. Defaults: `gemini-3.8-flash` and `lyria-3.5`; model names are configurable. See [provider documentation and validation evidence](docs/PROVIDERS.md).
+The server uses official REST `POST /v1/music/plan` for lyric drafts and `POST /v1/music` for actual MP3 songs. Default model: `music_v2_5`, configurable as `music_v2` or `music_v2_5` with `ELEVENLABS_MUSIC_MODEL`. No separate text-model API key is needed. See [provider documentation and validation evidence](docs/PROVIDERS.md).
 
 ## Submission walkthrough
 
@@ -53,7 +53,7 @@ The server uses official REST `models/{model}:generateContent` calls. Defaults: 
 4. Take a quiz and view feedback. Open the library to revisit saved drafts.
 5. Open **Syllabus report** to inspect all 91 topics and download the CSV. Indexed coverage, full-note readiness, draft readiness and audio readiness are distinct.
 6. With configured provider access, select live generation and synthesize. Without it, demonstrate the honest blocker. If you have an educational recording you may use, attach a WAV/MP3; it is explicitly labelled **user supplied**, not AI generated. The player supports play/pause, seeking, volume and download.
-7. Sign in as the demo admin. Upload a source file and academic excerpt, review it, then approve it. Only approved excerpts enter Gemini grounding. Uploaded files never modify the official hierarchy or act as instructions.
+7. Sign in as the demo admin. Upload a source file and academic excerpt, review it, then approve it. Only approved excerpts enter AI lyric grounding. Uploaded files never modify the official hierarchy or act as instructions.
 
 Repeatable command-line examples against a running server:
 
@@ -65,7 +65,11 @@ python3 scripts/demo.py --live
 python3 scripts/demo.py --live --language hi
 ```
 
-The script runs one Calculus and one BEEE example and saves outputs under `runtime/demo-output/`. Sign in as `submission-demo` with any password to view them. Live runs download only real audio returned by Lyria. The present environment has completed offline flows; live sung end-to-end examples remain blocked.
+The script runs one Calculus and one BEEE example and saves outputs under `runtime/demo-output/`. Sign in as `submission-demo` with any password to view them. Live runs download only real audio returned by ElevenLabs Music. The present environment has completed offline flows; live sung end-to-end examples remain blocked.
+
+## Without an API subscription
+
+Generate and edit an offline source-linked draft, then click **Export song prompt**. Use the downloaded prompt and reviewed lyrics in an AI music website that accepts custom lyrics. Download its actual sung MP3 under its account terms, then attach it to the draft using **Attach your own permitted audio**. This produces AI-created audio through a manual external step; the app labels it user supplied and does not claim in-site generation. Check English/Hindi pronunciation and formulas yourself before submission. Free credits and download permissions vary by service/account.
 
 ## Validate
 
@@ -103,7 +107,7 @@ python3 scripts/build_report.py
 
 - `app/server.py`: HTTP API, sessions, uploads, byte-range audio delivery, background synthesis.
 - `app/store.py`: SQLite sessions, songs, quiz attempts and approved material.
-- `app/providers.py`: server-only Google requests, grounded lyrics, actual audio parsing and explicit provider failures.
+- `app/providers.py`: server-only ElevenLabs requests, grounded lyrics, actual audio parsing and explicit provider failures.
 - `app/content.py`, `data/`: imported hierarchy, supplemental explanations, quizzes and labelled templates.
 - `static/`: responsive browser UI; no frontend dependencies or external CDN requirement.
 - `tests/`: API/provider/catalogue tests and isolated browser verification.

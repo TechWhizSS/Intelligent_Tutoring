@@ -29,7 +29,7 @@ def supplemental(topic):
 
 
 def demo_lyrics(topic, language):
-    """Explicit offline template, never passed off as Gemini or generated audio."""
+    """Explicit offline template, never passed off as AI-generated lyrics or generated audio."""
     if language == 'hi':
         return f"[Verse 1]\n{topic['hindiSupplement']}\n\n[Chorus]\nसमझो, दोहराओ, यादों में बसाओ,\nसूत्र की हर शर्त को साथ निभाओ।\nलय में सीखो, फिर सवाल लगाओ,\nहर कदम पर अपना उत्तर जाँचते जाओ।\n\n[Verse 2]\nपुस्तक का संदर्भ साथ रखो,\nपरिभाषा और शर्तों को साफ लिखो।\n{topic['hindiSupplement']}\n\n[Chorus]\nसमझो, दोहराओ, यादों में बसाओ,\nसूत्र की हर शर्त को साथ निभाओ।"
     return f"[Verse 1]\nToday's idea: {topic['title']}.\nRead the reference, take it slow,\nCheck the conditions before you go.\n\n[Reference refrain — adapt the wording before singing]\n{topic['sourceText']}\n\n[Chorus]\nLearn it, sing it, let the meaning stay,\nCheck every condition along the way.\nA rhythm for recall, a reason for each line,\nWork through the question, one step at a time.\n\n[Verse 2]\nSay what each symbol means today,\nThen let the reference lead the way.\n\n[Chorus]\nLearn it, sing it, let the meaning stay,\nCheck every condition along the way."

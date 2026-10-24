@@ -1,6 +1,6 @@
 """Run one Calculus and one BEEE demo against a running server.
 
-Default is explicitly offline; --live makes billable Gemini/Lyria calls and
+Default is explicitly offline; --live makes billable ElevenLabs Music calls and
 downloads only real returned audio. Never substitutes a fixture or TTS.
 """
 import argparse

@@ -33,7 +33,7 @@ def main():
             sock.bind(('127.0.0.1', 0))
             port = sock.getsockname()[1]
         env = {**os.environ, 'APP_DATA_DIR': temp, 'HOST': '127.0.0.1', 'PORT': str(port),
-               'GEMINI_API_KEY': '', 'ADMIN_SAP_ID': 'admin', 'ADMIN_PASSWORD': 'demo-admin'}
+               'ELEVENLABS_API_KEY': '', 'ADMIN_SAP_ID': 'admin', 'ADMIN_PASSWORD': 'demo-admin'}
         server = subprocess.Popen([sys.executable, '-m', 'app.server'], cwd=ROOT, env=env,
                                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         url = f'http://127.0.0.1:{port}'
@@ -74,6 +74,9 @@ def main():
                         page.get_by_role('button', name='Synthesize sung music', exact=True).click()
                         wait_js(page, "document.querySelector('#toast').textContent.includes('No song was fabricated')")
                         assert page.locator('#audio-player').count() == 0
+                with page.expect_download() as exported:
+                    page.get_by_role('button', name='Export song prompt', exact=True).click()
+                assert exported.value.suggested_filename.endswith('-song-prompt.txt')
                 page.locator('#toast').evaluate("e=>{e.textContent='';e.className='';}")
                 page.evaluate('window.scrollTo(0,0)')
                 page.screenshot(path=str(OUTPUT / 'studio-desktop.png'), full_page=True)
@@ -134,7 +137,7 @@ def main():
                 page.get_by_text('Admin-approved supplemental material', exact=True).wait_for()
                 page.get_by_role('button', name='Connections', exact=True).click()
                 page.get_by_role('button', name='Test configured credentials', exact=True).click()
-                wait_js(page, "document.querySelector('#provider-result').textContent.includes('GEMINI_API_KEY')")
+                wait_js(page, "document.querySelector('#provider-result').textContent.includes('ELEVENLABS_API_KEY')")
                 assert errors == [], errors
                 browser.close()
             print('PASS: bilingual flows for both subjects, save, honest synthesis blocker, notes, quizzes, all 91 report rows, CSV/audio downloads, real browser playback, uninterrupted navigation, mobile/tablet layout, admin review, credential check, no JavaScript errors.')

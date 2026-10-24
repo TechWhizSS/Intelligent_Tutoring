@@ -1,52 +1,32 @@
-# Google provider integration and evidence
+# ElevenLabs Music integration and evidence
 
-Documentation checked on 24 October 2026 (Asia/Kolkata):
+Updated on 24 October 2026 following the instruction to stop using Google APIs. The application makes no Google API requests. Existing saved drafts, uploads and audio files remain compatible.
 
-- [Official Lyria 3.5 music generation guide](https://ai.google.dev/gemini-api/docs/music-generation)
-- [Official Generate Content music API guide](https://ai.google.dev/gemini-api/docs/generate-content/music-generation)
-- [Lyria 3.5 model reference](https://ai.google.dev/gemini-api/docs/models/lyria-3.5)
-- [Gemini text generation guide](https://ai.google.dev/gemini-api/docs/text-generation)
+Official documentation reviewed:
 
-The documentation describes sung vocals, custom lyrics, melody and instrumental arrangements for `lyria-3.5`. The adapter uses the documented REST endpoint:
+- [Music API](https://elevenlabs.io/docs/api-reference/music/compose)
+- [Composition plans](https://elevenlabs.io/docs/eleven-api/guides/how-to/music/composition-plans)
+- [Create a composition plan](https://elevenlabs.io/docs/api-reference/music/create-composition-plan)
+- [Music capabilities and paid API access](https://elevenlabs.io/docs/overview/capabilities/music)
 
-```text
-POST https://generativelanguage.googleapis.com/v1beta/models/lyria-3.5:generateContent
-x-goog-api-key: <server-side GEMINI_API_KEY>
-Content-Type: application/json
+## Implementation
 
-{"contents":[{"role":"user","parts":[{"text":"<musical direction and custom lyrics>"}]}]}
-```
+The server authenticates with `xi-api-key`, read only from `ELEVENLABS_API_KEY`. No credentials reach the browser. The default model is `music_v2_5`; `music_v2` is also accepted.
 
-The app iterates through the selected candidate's content parts, finds actual `inlineData` audio, validates base64 and supported MIME type, saves it privately, and records provider-returned lyrics separately. MP3 is the default provider output. It also accepts returned WAV. Missing audio, safety blocks, invalid credentials, model unavailability, billing/permission failures, quota errors and network failures never become fabricated tracks. Lyrics are sent as original custom lyrics, with instructions for singing rather than speech. There is no TTS fallback.
+`POST https://api.elevenlabs.io/v1/music/plan` receives an academic prompt assembled from the selected uploaded topic, approved additions, requested English/Hindi language and settings. The planner returns chunk text used as an editable lyric draft. The prompt is limited to 4100 characters; oversized grounding produces an explicit error rather than silently dropping sources. Generated explanations remain supplemental and require academic review.
 
-Gemini uses the same documented Generate Content REST structure, with server-controlled grounding instructions and the uploaded academic source plus approved excerpts. Defaults are configurable with `GEMINI_MODEL` and `LYRIA_MODEL`.
+`POST https://api.elevenlabs.io/v1/music` receives a native `composition_plan` containing the exact saved lyrics in chunks with `text`, `duration_ms`, `positive_styles`, `negative_styles` and `context_adherence`. The app requests MP3 audio, validates its MIME type and signature, and privately saves only actual returned bytes. It does not use speech synthesis. Raw audio does not include a verified transcript, so no returned-lyrics verification is claimed.
 
-## Controls
+Chunk durations use documented native fields (3–120 seconds each, at most 30 chunks). The app apportions the selected song length across the existing lyric sections and never silently discards words. Genre, mood, vocal delivery, BPM and repeated formulas are requests in native style arrays; exact musical adherence is not guaranteed. The app only requests English and Hindi. Hindi quality and academic formula pronunciation have not yet been tested in real provider audio.
 
-| Control | Implementation | Guarantee |
-| --- | --- | --- |
-| English / Hindi | Requested in Gemini instructions and Lyria prompt | Review returned audio |
-| Genre, mood, vocal delivery | Natural-language prompt preferences | No exact parameter-level enforcement |
-| Tempo | Requested BPM in prompt | Not guaranteed |
-| Length | Approximate seconds in prompt | Lyria determines final duration |
-| Difficulty | Lyrics instruction | Supplemental output; review required |
-| Formula repeats | Lyrics setting and repeat request in music prompt | Not guaranteed |
-| Custom instructions | Bounded preference text subordinate to academic source | Must not override grounding |
-| Editable lyrics | Saved text sent as custom lyrics | Listen and compare provider delivery |
-| Play/download | Returned audio or permission-confirmed recordings | No fake generated songs |
+## Credential checks and current blocker
 
-Controls are not passed as invented API fields. RealTime instrumental generation and speech generation are not used.
+`python3 scripts/check_providers.py` calls the music planner with a small test prompt. Official documentation states plan creation does not consume credits; it is still subject to account access and rate limits. A planner success does not prove access to billable audio generation.
 
-## Current verification boundary
+At the last environment inspection, no provider secrets were configured and the allowlist did not include `api.elevenlabs.io`. [Captured credential check](provider-check.json). Live lyrics and music therefore remain unverified. API music generation requires a paid ElevenLabs subscription with appropriate permissions and credits. Configure `ELEVENLABS_API_KEY`, allow the API host, restart, then complete the English and Hindi live example scripts. Do not paste keys into chat or commit them.
 
-The cloud environment reports **zero configured secrets** and **zero outbound identities**. `GEMINI_API_KEY` is absent. Its restricted destination allowlist does not include `generativelanguage.googleapis.com`. The credential checker reports both models blocked before making authenticated requests. See [the captured check](provider-check.json).
+Contract tests cover actual endpoint paths, authentication, source-grounded planner inputs, native chunk schema and timing limits, raw MP3 parsing, rejection of JSON/HTML/empty responses, missing credentials and sanitized provider failures. Browser tests use isolated test audio to verify playback; they do not prove generated singing quality. No generated song is bundled or fabricated.
 
-Completed locally:
+## Manual alternative
 
-- Full catalogue and English/Hindi offline workflows for Calculus and BEEE.
-- Provider request/response contract tests with mocks, including interleaved text/audio parts and explicit errors.
-- A browser decoding, playing and downloading a test-only WAV in an isolated instance. This verifies the player, **not** Lyria output or sung quality.
-
-Not completed: live Gemini lyrics, actual Lyria songs, listening verification of vocals/melody/chorus, language accuracy in provider audio, or provider download entitlement for a particular billing account. No generated song is bundled or claimed.
-
-To unblock: configure a billed, authorized `GEMINI_API_KEY` in cloud environment secrets; allow the official API host; restart; run `python3 scripts/check_providers.py`; then run `python3 scripts/demo.py --live` and its Hindi variant. Model metadata access alone does not prove generation. Review resulting songs before a college presentation.
+The studio's **Export song prompt** downloads your reviewed lyrics and musical preferences as a text file. You may generate the song yourself in an external AI music website, download a permitted MP3 and attach it to the draft. It is labelled user supplied. This route does not need an API key in our app, but availability, credits and download permissions depend on the external service.

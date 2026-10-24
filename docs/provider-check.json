@@ -1,18 +1,14 @@
 {
+  "provider": "ElevenLabs Music",
   "configured": false,
-  "lyricsModel": "gemini-3.8-flash",
-  "musicModel": "lyria-3.5",
+  "lyricsModel": "ElevenLabs Music composition planner",
+  "musicModel": "music_v2_5",
   "liveAudioVerified": false,
   "checks": [
     {
-      "model": "gemini-3.8-flash",
+      "model": "music_v2_5",
       "status": "blocked",
-      "reason": "GEMINI_API_KEY is not configured. Live Gemini lyrics and Lyria sung audio are unavailable. Add a billed API key and allow generativelanguage.googleapis.com, then run the provider check."
-    },
-    {
-      "model": "lyria-3.5",
-      "status": "blocked",
-      "reason": "GEMINI_API_KEY is not configured. Live Gemini lyrics and Lyria sung audio are unavailable. Add a billed API key and allow generativelanguage.googleapis.com, then run the provider check."
+      "reason": "ELEVENLABS_API_KEY is not configured. Add a key from an account with paid Music API access and allow api.elevenlabs.io. No audio was created; no Google API is used."
     }
   ],
   "mode": "demo"
