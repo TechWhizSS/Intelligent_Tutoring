@@ -1,32 +1,38 @@
-# ElevenLabs Music integration and evidence
+# Free local AI music: implementation and evidence
 
-Updated on 24 October 2026 following the instruction to stop using Google APIs. The application makes no Google API requests. Existing saved drafts, uploads and audio files remain compatible.
+Updated 24 October 2026 after the instruction to use only free resources. All paid music-service adapters have been removed. The application makes no calls to Google, ElevenLabs or another paid inference service.
 
-Official documentation reviewed:
+## Selected open-source implementation
 
-- [Music API](https://elevenlabs.io/docs/api-reference/music/compose)
-- [Composition plans](https://elevenlabs.io/docs/eleven-api/guides/how-to/music/composition-plans)
-- [Create a composition plan](https://elevenlabs.io/docs/api-reference/music/create-composition-plan)
-- [Music capabilities and paid API access](https://elevenlabs.io/docs/overview/capabilities/music)
+- [ACE-Step 1.5 original model](https://github.com/ace-step/ACE-Step-1.5)
+- [acestep.cpp CPU implementation and documented local API](https://github.com/ServeurpersoCom/acestep.cpp)
+- Pinned C++ source revision: `de858d8e1a94f0e1939cf9bdd8ff7d9631953077`
+- [Public quantized models](https://huggingface.co/Serveurperso/ACE-Step-1.5-GGUF)
 
-## Implementation
+The selected model files are `acestep-v15-turbo-Q4_K_M.gguf`, `Qwen3-Embedding-0.6B-Q8_0.gguf` and `vae-BF16.gguf`. This is a pure DiT synthesis path without the optional language model, chosen to reduce RAM use. CPU execution is supported upstream; acceptable latency/quality on this host remains unmeasured.
 
-The server authenticates with `xi-api-key`, read only from `ELEVENLABS_API_KEY`. No credentials reach the browser. The default model is `music_v2_5`; `music_v2` is also accepted.
+The app creates a private request JSON containing exact edited lyrics, music caption, BPM, duration, English/Hindi vocal language, eight turbo inference steps and WAV output. It invokes the local executable through an argument array with no shell, one request at a time, and reads the actual `request0.wav` output. There is no TTS fallback, external-key fallback or test-fixture fallback. Output validation checks a real WAV container and meaningful duration; this does not certify that the audio contains accurate lyrics or good singing.
 
-`POST https://api.elevenlabs.io/v1/music/plan` receives an academic prompt assembled from the selected uploaded topic, approved additions, requested English/Hindi language and settings. The planner returns chunk text used as an editable lyric draft. The prompt is limited to 4100 characters; oversized grounding produces an explicit error rather than silently dropping sources. Generated explanations remain supplemental and require academic review.
+BPM, duration and language use native fields. Genre, mood, vocal delivery and repeated formulas are caption preferences. Final singing and formula pronunciation require listening review. Lyrics are locally assembled source-linked templates with short curated examples; the interface does not pretend an LLM generated them.
 
-`POST https://api.elevenlabs.io/v1/music` receives a native `composition_plan` containing the exact saved lyrics in chunks with `text`, `duration_ms`, `positive_styles`, `negative_styles` and `context_adherence`. The app requests MP3 audio, validates its MIME type and signature, and privately saves only actual returned bytes. It does not use speech synthesis. Raw audio does not include a verified transcript, so no returned-lyrics verification is claimed.
+## What was actually done here
 
-Chunk durations use documented native fields (3–120 seconds each, at most 30 chunks). The app apportions the selected song length across the existing lyric sections and never silently discards words. Genre, mood, vocal delivery, BPM and repeated formulas are requests in native style arrays; exact musical adherence is not guaranteed. The app only requests English and Hindi. Hindi quality and academic formula pronunciation have not yet been tested in real provider audio.
+- Inspected the host: 8 GB memory limit, two allocated CPU cores, no GPU.
+- Checked the official free Hugging Face demo and API: proxy connection denied with HTTP 403.
+- Downloaded the C++ source and ggml dependency through allowed GitHub access.
+- Installed the free CMake build tool and successfully compiled `ace-synth` and `ace-server` for CPU.
+- Executed the built binary and confirmed the expected CLI options.
+- Ran `scripts/setup_free_music.py --models-only`: failed before the first model download with `Tunnel connection failed: 403 Forbidden`.
+- Built the in-website local-generation path, original Calculus/BEEE bilingual featured lyrics and a reproducible downloader with pinned source and public model checksums.
 
-## Credential checks and current blocker
+## Current blocker — network, not money
 
-`python3 scripts/check_providers.py` calls the music planner with a small test prompt. Official documentation states plan creation does not consume credits; it is still subject to account access and rate limits. A planner success does not prove access to billable audio generation.
+The cloud environment's enforced network policy is restricted and its custom allowlist is empty. It blocks `huggingface.co` and `*.hf.space`. Public model downloads may additionally require `*.hf.co`, including Xet/CDN hosts. The available environment tools only inspect configuration; they cannot change this allowlist. The user has been asked to enable access through the cloud environment settings.
 
-At the last environment inspection, no provider secrets were configured and the allowlist did not include `api.elevenlabs.io`. [Captured credential check](provider-check.json). Live lyrics and music therefore remain unverified. API music generation requires a paid ElevenLabs subscription with appropriate permissions and credits. Configure `ELEVENLABS_API_KEY`, allow the API host, restart, then complete the English and Hindi live example scripts. Do not paste keys into chat or commit them.
+No payment, paid account, provider key or subscription is needed. Once network access is enabled, run `python3 scripts/setup_free_music.py --models-only`, verify the installed model checksums, restart the website, and run `python3 scripts/demo.py --generate-audio --length 30` and the Hindi variant.
 
-Contract tests cover actual endpoint paths, authentication, source-grounded planner inputs, native chunk schema and timing limits, raw MP3 parsing, rejection of JSON/HTML/empty responses, missing credentials and sanitized provider failures. Browser tests use isolated test audio to verify playback; they do not prove generated singing quality. No generated song is bundled or fabricated.
+**Actual educational songs have not yet been generated in this environment.** Model files are missing, so vocals, melody, instrumentals, chorus quality and Hindi pronunciation cannot honestly be verified. Tests use isolated fixtures to validate the pipeline and player; those fixtures are never presented as songs. See [current readiness](provider-check.json).
 
-## Manual alternative
+## Attribution
 
-The studio's **Export song prompt** downloads your reviewed lyrics and musical preferences as a text file. You may generate the song yourself in an external AI music website, download a permitted MP3 and attach it to the draft. It is labelled user supplied. This route does not need an API key in our app, but availability, credits and download permissions depend on the external service.
+`acestep.cpp` is distributed under its upstream open-source license; source and license files remain in its local checkout. ACE-Step model attribution and licensing remain with the original ACE-Step authors. The setup manifest records source revision, resolved model revision and file SHA-256 checksums. No third-party code, binary or multi-gigabyte model is committed into this application repository.

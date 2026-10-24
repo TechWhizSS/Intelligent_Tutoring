@@ -8,4 +8,4 @@ from app.providers import check
 
 result = check()
 print(json.dumps(result, ensure_ascii=False, indent=2))
-sys.exit(0 if result['configured'] and all(c['status'].startswith('planner accessible') for c in result['checks']) else 2)
+sys.exit(0 if result['configured'] else 2)

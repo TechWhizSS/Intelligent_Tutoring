@@ -1,0 +1,10 @@
+{
+  "calc-01": {
+    "en": "[Verse]\nContinuous from a to b,\nDifferentiable in between.\nIf both ends share one height,\nRolle's theorem brings insight.\n\n[Chorus]\nSome c lies inside,\nWhere the tangent's flat, no rise.\nf prime c is zero,\nCheck the rules and let it show.\n\n[Chorus]\nEqual ends, conditions true,\nZero slope comes into view!",
+    "hi": "[Verse]\nए से बी तक सतत कहानी,\nबीच में अवकलनीय निशानी।\nदोनों सिरों पर मान समान,\nरोल प्रमेय का रखो ध्यान।\n\n[Chorus]\nसमझो, गाओ, याद बसाओ,\nबीच का कोई सी बतलाओ।\nसी पर अवकलज शून्य मिलेगा,\nशर्त सही तो नियम चलेगा।\n\n[Chorus]\nदोनों सिरों पर मान समान,\nशर्तों का भी रखो ध्यान!"
+  },
+  "beee-01": {
+    "en": "[Verse]\nV equals I times R,\nOhm's law takes us far.\nInductor voltage: L times current's rate,\nCapacitor current: C times voltage's rate.\n\n[Chorus]\nR turns energy into heat,\nL and C store to the beat.\nL stores in a magnetic field,\nC stores in an electric field.\n\n[Chorus]\nV equals I times R,\nLearn what all the symbols are!",
+    "hi": "[Verse]\nवी बराबर आई गुणा आर,\nओम का नियम रखो याद यार।\nएल में धारा की बदलती दर,\nएल से गुणा तो वोल्टेज पर।\n\n[Verse]\nसी में वोल्टेज की बदलती दर,\nसी से गुणा तो धारा पर।\n\n[Chorus]\nसमझो, गाओ, याद बसाओ,\nआर में ऊर्जा ऊष्मा पाओ।\nएल का क्षेत्र चुंबकीय कहलाए,\nसी विद्युत क्षेत्र में ऊर्जा बचाए।\n\n[Chorus]\nवी बराबर आई गुणा आर,\nअर्थ समझो हर सूत्र का यार!"
+  }
+}

@@ -1,7 +1,7 @@
 """Run one Calculus and one BEEE demo against a running server.
 
-Default is explicitly offline; --live makes billable ElevenLabs Music calls and
-downloads only real returned audio. Never substitutes a fixture or TTS.
+Default creates source-linked drafts. --generate-audio runs the free local AI
+and downloads only actual generated audio. Never substitutes a fixture or TTS.
 """
 import argparse
 import http.cookiejar
@@ -14,7 +14,8 @@ from pathlib import Path
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--url', default='http://127.0.0.1:8000')
-parser.add_argument('--live', action='store_true')
+parser.add_argument('--generate-audio', '--live', dest='generate_audio', action='store_true')
+parser.add_argument('--length', type=int, choices=[30,60,120,180,240], default=30)
 parser.add_argument('--language', choices=['en', 'hi'], default='en')
 parser.add_argument('--sap', default='submission-demo')
 args = parser.parse_args()
@@ -36,16 +37,16 @@ request('/api/login', {'sap': args.sap, 'password': 'sample'})
 out = Path('runtime/demo-output')
 out.mkdir(parents=True, exist_ok=True)
 for topic_id in ['calc-01', 'beee-01']:
-    song = request('/api/lyrics', {'topic': topic_id, 'language': args.language, 'mode': 'live' if args.live else 'demo'})
+    song = request('/api/lyrics', {'topic': topic_id, 'language': args.language, 'mode': 'free', 'settings': {'length': args.length}})
     (out / f'{topic_id}-{args.language}.lyrics.txt').write_text(song['lyrics'])
     print(f"{topic_id}: {song['provenance']}")
     questions = request(f'/api/topics/{topic_id}/quiz?language={args.language}')
     (out / f'{topic_id}-{args.language}.quiz.json').write_text(json.dumps(questions, ensure_ascii=False, indent=2))
-    if not args.live:
-        print('  No audio generated. Run --live only after configuring model access and billing.')
+    if not args.generate_audio:
+        print('  No audio generated. Run --generate-audio after installing the free model files. No paid API is used.')
         continue
     request(f"/api/songs/{song['id']}/synthesize", {})
-    deadline = time.time() + 360
+    deadline = time.time() + 1860
     while time.time() < deadline:
         time.sleep(3)
         current = next(s for s in request('/api/songs') if s['id'] == song['id'])

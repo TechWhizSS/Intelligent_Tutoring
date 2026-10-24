@@ -1,14 +1,14 @@
-# Syllabus to Song
+# Syllabus to Song — free local AI edition
 
-A full-stack, mobile-friendly educational music studio for **MBA Tech → CE → First year → Semester I**, covering Calculus and Basic Electrical & Electronics Engineering.
+A full-stack educational music studio for **MBA Tech → CE → First year → Semester I**, with all 38 uploaded Calculus topics and 53 uploaded BEEE topics indexed in order. Only English and Hindi are supported.
 
-**Demonstrable now:** sample SAP login, all 91 uploaded topic headings, source-linked summaries and formulas, supplemental Hindi explanations, English/Hindi lyric templates, editable/saved drafts, quizzes, SQLite song library, admin source uploads and approval, a browser audio player with seeking and downloads, and a complete syllabus readiness report.
+The music backend is now **ACE-Step 1.5**, an open-source text-and-lyrics-to-music model running through `acestep.cpp`. There is **no paid music API, subscription, provider account or API key**. The app sends reviewed lyrics to a local AI engine for sung vocals, melody and accompaniment. It never substitutes speech synthesis or a test fixture for a generated song.
 
-**Live sung music is blocked in the supplied environment:** no `ELEVENLABS_API_KEY` is configured, and `api.elevenlabs.io` is absent from the environment allowlist. The official ElevenLabs Music adapter is implemented and contract-tested with mocks, but no live provider generation has been verified. The app no longer calls Google APIs. Demo mode does not invent audio, use TTS, or substitute commercial song recordings. Full textbook notes were not uploaded; the app labels uploaded summaries and supplemental guidance separately.
+**Current boundary:** the free CPU engine has been compiled in this Codex environment, but downloading its three public model files fails with proxy HTTP 403 because Hugging Face is blocked. No actual generated song or singing quality is claimed yet. The website reports this setup state. See [provider evidence](docs/PROVIDERS.md) and [captured readiness](docs/provider-check.json).
 
-## Launch
+## Run the website
 
-Python **3.12+** is the only runtime requirement. No npm build, pip install, database server, or laptop-specific setup is needed.
+Python 3.12+ is the only requirement for the website, catalogue, SQLite library, quizzes and uploads:
 
 ```sh
 git clone https://github.com/TechWhizSS/Intelligent_Tutoring.git
@@ -17,61 +17,78 @@ git switch codex/development
 python3 -m app.server
 ```
 
-Open **http://localhost:8000**. On a cloud host, expose/forward port 8000 through that host's authenticated preview. The local server address is not a public deployment URL.
+Open localhost:8000 or your cloud host's authenticated preview for port 8000. A public hosting deployment has not been created.
 
-- Student: any SAP ID with 3–30 letters/digits/underscores/hyphens and **any nonempty password**.
-- “Try the sample student account” opens `70572400001` and seeds Calculus/BEEE lyric examples in both languages, with **no audio**.
-- Demo admin: SAP ID `admin`, password `demo-admin`. Set `ADMIN_PASSWORD` before sharing an instance.
-- Only English (`en`) and Hindi (`hi`) are accepted by the API and database language constraint.
-- Runtime files are stored in `runtime/` and excluded from Git. For a persistent host volume, set `APP_DATA_DIR` to that volume.
+- Student: any SAP ID containing 3–30 letters/digits/underscores/hyphens and any nonempty sample password.
+- Sample account: click **Try the sample student account**. It includes Calculus and BEEE drafts in English and Hindi, without fake audio.
+- Demo admin: `admin` / `demo-admin`; change `ADMIN_PASSWORD` before sharing.
+- Runtime database, model files and generated audio are in Git-ignored `runtime/`. Set `APP_DATA_DIR` for a persistent host volume.
 
-## Turn on real sung music
+## Enable free in-website AI singing
 
-Configure the environment's secret binding `ELEVENLABS_API_KEY` with a key from an ElevenLabs account with **paid Music API access** and credits. Allow outbound HTTPS to **api.elevenlabs.io**. Restart the server after changing environment variables. Keep the key out of chat, source control, and browser code.
+The model download is a one-time setup step. Inference then runs offline.
 
-For a shell-configured instance:
+1. Allow outbound GitHub and Hugging Face access in the cloud environment. Weight downloads may redirect to `*.hf.co` (including Xet/CDN hosts). The cloud proxy must permit the actual download hosts. No billing is involved.
+2. Install a C++17 compiler (`g++`), git and Python 3.12+.
+3. Run:
 
 ```sh
-cp .env.example .env
-# Edit .env securely with the real key and admin password.
-set -a
-. ./.env
-set +a
+python3 scripts/setup_free_music.py
 python3 scripts/check_providers.py
 python3 -m app.server
 ```
 
-The credential check calls the ElevenLabs composition planner, documented as not consuming credits. It does **not** buy an audio generation and does **not** certify sung output. In the UI choose **Live ElevenLabs lyric planner**, generate and review lyrics, then click **Synthesize sung music**. Synthesis runs in the background; completed provider audio appears in the player and library. Edited lyrics, style arrays and section durations are sent as native composition-plan fields. Tempo, voice, mood and formula repetition remain style preferences. Final delivery and Hindi singing quality must be checked in actual output. Live errors remain explicit; no silent demo fallback occurs.
+The setup script pins the C++ source revision, builds the CPU engine, resolves the public model revision, downloads three GGUF files and verifies each public LFS SHA-256 checksum. It preserves `.part` files for interrupted downloads. The selected quantized model set is smaller than the upstream full default; no large language model is loaded.
 
-The server uses official REST `POST /v1/music/plan` for lyric drafts and `POST /v1/music` for actual MP3 songs. Default model: `music_v2_5`, configurable as `music_v2` or `music_v2_5` with `ELEVENLABS_MUSIC_MODEL`. No separate text-model API key is needed. See [provider documentation and validation evidence](docs/PROVIDERS.md).
+Separate phases are available:
 
-## Submission walkthrough
+```sh
+python3 scripts/setup_free_music.py --build-only
+python3 scripts/setup_free_music.py --models-only
+```
 
-1. Start the server and click **Try the sample student account**.
-2. Choose Calculus → Unit 1 → Rolle's Theorem → English. Generate an offline template, edit a line, and save.
-3. Repeat for BEEE → Unit 1 → Electrical Circuit Elements, then switch to Hindi. Notes include supplemental worked examples for both topics.
-4. Take a quiz and view feedback. Open the library to revisit saved drafts.
-5. Open **Syllabus report** to inspect all 91 topics and download the CSV. Indexed coverage, full-note readiness, draft readiness and audio readiness are distinct.
-6. With configured provider access, select live generation and synthesize. Without it, demonstrate the honest blocker. If you have an educational recording you may use, attach a WAV/MP3; it is explicitly labelled **user supplied**, not AI generated. The player supports play/pause, seeking, volume and download.
-7. Sign in as the demo admin. Upload a source file and academic excerpt, review it, then approve it. Only approved excerpts enter AI lyric grounding. Uploaded files never modify the official hierarchy or act as instructions.
+On this particular workspace the compiled engine is already present through `runtime/free-music/acestep.cpp`; only the model download remains blocked. This runtime installation is not committed; other checkouts should run the setup script.
 
-Repeatable command-line examples against a running server:
+Optional environment settings:
+
+```text
+FREE_MUSIC_DEVICE=CPU
+FREE_MUSIC_THREADS=2
+FREE_MUSIC_TIMEOUT=1800
+```
+
+`FREE_MUSIC_HOME`, `FREE_MUSIC_ENGINE` and `FREE_MUSIC_MODELS` can select another local installation. No secret is required. CPU inference may take many minutes. Start with a **30-second song**; one generation is allowed at a time to avoid exhausting RAM. The observed cloud host has 8 GB RAM and two allocated CPU cores, with no GPU. Successful inference performance has not yet been measured on it.
+
+## Make a song
+
+1. Select Calculus or BEEE, chapter/unit, topic, English/Hindi and music preferences.
+2. Click **Generate lyrics**. Drafts are free, source-linked local templates, clearly labelled supplemental and not LLM-generated. Rolle's Theorem and Electrical Circuit Elements include short, original bilingual featured lyrics; other topics use uploaded references and supplemental Hindi explanations.
+3. Review/edit the lyrics and save. For a 30-second song keep the wording short; an AI may not deliver every word of a long chapter summary.
+4. Click **Synthesize sung music**. The app invokes the local AI with the exact saved lyrics, native BPM, duration and vocal-language fields, plus a caption for genre, mood and delivery.
+5. When actual audio exists, load it in the browser player, listen, seek and download the WAV. Check formula pronunciation, Hindi delivery and academic meaning before submission.
+
+No model setup check certifies singing quality. Missing models, memory errors, timeouts and empty/invalid audio remain visible failures. Genre, voice, mood and formula repetition are model preferences; exact adherence is not promised.
+
+To run both subject examples against a running website:
 
 ```sh
 python3 scripts/demo.py
 python3 scripts/demo.py --language hi
-# These make billable provider calls only after credentials are configured:
-python3 scripts/demo.py --live
-python3 scripts/demo.py --live --language hi
+python3 scripts/demo.py --generate-audio --length 30
+python3 scripts/demo.py --generate-audio --language hi --length 30
 ```
 
-The script runs one Calculus and one BEEE example and saves outputs under `runtime/demo-output/`. Sign in as `submission-demo` with any password to view them. Live runs download only real audio returned by ElevenLabs Music. The present environment has completed offline flows; live sung end-to-end examples remain blocked.
+Sign in as `submission-demo` with any password to see these records. Actual generated outputs are saved to `runtime/demo-output/`. The `--live` spelling remains an alias for `--generate-audio`, with no paid provider behind it.
 
-## Without an API subscription
+## Other working features
 
-Generate and edit an offline source-linked draft, then click **Export song prompt**. Use the downloaded prompt and reviewed lyrics in an AI music website that accepts custom lyrics. Download its actual sung MP3 under its account terms, then attach it to the draft using **Attach your own permitted audio**. This produces AI-created audio through a manual external step; the app labels it user supplied and does not claim in-site generation. Check English/Hindi pronunciation and formulas yourself before submission. Free credits and download permissions vary by service/account.
+The app includes source-linked chapter notes/formula summaries, supplemental worked examples and Hindi explanations, two supplemental quiz questions per topic with feedback, saved quiz attempts, editable/saved lyrics, a persistent song library, authenticated byte-range audio delivery and downloads, admin uploads/review, and all 91 rows in the syllabus readiness report. Complete textbook notes were not uploaded; they are not falsely marked ready.
 
-## Validate
+Admins can upload PDF/TXT/MD/CSV originals and academic excerpts. Excerpts become supplemental chapter material only after review/approval; they never act as code or application instructions. Uploaded originals, BEEE lecture/lab scope, course outcomes and Calculus song associations are preserved. Popular-song mappings are metadata only, never copied recordings.
+
+**Export song prompt** and permission-confirmed audio uploads remain available as optional utilities. The primary generation path is the free local AI inside the website.
+
+## Verification
 
 ```sh
 python3 -m compileall -q app scripts tests
@@ -79,7 +96,7 @@ node --check static/app.js
 python3 -m unittest discover -s tests -v
 ```
 
-Node is optional for a JavaScript syntax check, not required to run the app. Backend tests use the Python standard library and a temporary database. For browser checks:
+Node is optional for syntax checking. Runtime Python has no pip dependencies. Browser tests:
 
 ```sh
 python3 -m pip install -r requirements-dev.txt
@@ -87,15 +104,11 @@ python3 -m playwright install chromium
 python3 tests/browser_smoke.py
 ```
 
-The browser suite creates an isolated temporary server. It verifies both subjects in both languages, editing/saving, the provider blocker, quizzes, all report rows, uploads/approval, CSV/audio downloads, browser playback, playback continuity during navigation, and mobile/tablet layout. Its silent WAV is a **test-only player fixture**, never an educational demo song. Screenshots go to `test-results/` (Git-ignored). GitHub Actions runs checks on the development branch and pull requests to `main`.
+Tests cover paid-key/network independence, exact local model inputs, shell-free process execution, missing models, timeouts, invalid audio, serial generation, both subjects/languages, lyric saving, quizzes, all report rows, downloads, playback/seeking, uninterrupted navigation, phone/tablet layout and admin review. Test WAVs and mocked model files are isolated fixtures and never bundled or presented as AI songs. Browser checks do not prove model singing quality. GitHub Actions repeats the application and browser checks.
 
-## Sources and completeness
+## Catalogue and architecture
 
-The original uploaded spreadsheet, PDF, CSV mappings, DOCX and nested ZIP files are preserved under `sources/`. The catalogue includes file hashes and exact source locations. The BEEE PDF preserves all lecture/lab scope and learning objectives; the app also links each topic to its uploaded lecture mapping. Calculus objectives are not invented where the workbook supplies none. Uploaded popular-song associations are reference metadata only; no recordings or copyrighted lyric rewrites are supplied.
-
-See the [91-topic completeness report](docs/SYLLABUS_COMPLETENESS.md) and [complete CSV](docs/syllabus-completeness.csv). “100% indexed” means every uploaded topic is represented, not that complete textbook notes or generated music exist. The source contains mathematical simplifications; the app keeps the original and separately supplies cautions, including the domain condition for scalar potentials.
-
-To rebuild the catalogue/report after an intentional source update:
+[Every topic and readiness status](docs/SYLLABUS_COMPLETENESS.md) · [CSV](docs/syllabus-completeness.csv)
 
 ```sh
 python3 -m pip install openpyxl==3.1.5
@@ -103,15 +116,11 @@ python3 scripts/import_syllabus.py
 python3 scripts/build_report.py
 ```
 
-## Architecture and scope
+- `app/server.py`: API, sample sessions, jobs, uploads, audio and reports.
+- `app/providers.py`: free local model readiness, native requests and CPU subprocess inference.
+- `app/content.py`, `data/`, `sources/`: uploaded hierarchy, formulas, original featured lyrics and labelled supplemental material.
+- `static/`: responsive dependency-free browser UI.
+- `scripts/setup_free_music.py`: reproducible free engine/model setup.
+- `tests/`: catalogue/API/local-engine contract and browser verification.
 
-- `app/server.py`: HTTP API, sessions, uploads, byte-range audio delivery, background synthesis.
-- `app/store.py`: SQLite sessions, songs, quiz attempts and approved material.
-- `app/providers.py`: server-only ElevenLabs requests, grounded lyrics, actual audio parsing and explicit provider failures.
-- `app/content.py`, `data/`: imported hierarchy, supplemental explanations, quizzes and labelled templates.
-- `static/`: responsive browser UI; no frontend dependencies or external CDN requirement.
-- `tests/`: API/provider/catalogue tests and isolated browser verification.
-
-This is a single-process college-demo server. Sample student passwords intentionally do not verify a college identity. Do not use it for real student records or expose a billed key behind unrestricted sample login. Background jobs are marked failed after a server restart; retry them from the library. Use a durable data volume for songs/uploads and HTTPS with `COOKIE_SECURE=1` for a shared hosted instance. A public hosting deployment has not been created.
-
-Development stays on `codex/development`. `main` must only receive changes through an approved merge.
+This is a single-process college-demo server. Sample passwords intentionally do not verify a college identity. Do not store real student records. A server restart marks unfinished generations failed; retry them from the library. `main` remains unchanged until the owner approves a merge.

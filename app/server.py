@@ -21,7 +21,7 @@ from urllib.parse import unquote, urlparse, parse_qs
 from . import content, providers, store
 
 ROOT = content.ROOT
-POOL = concurrent.futures.ThreadPoolExecutor(max_workers=2)
+POOL = concurrent.futures.ThreadPoolExecutor(max_workers=1)
 RATE_LOCK = threading.Lock()
 RATE = {}
 PROVIDER_CHECK = None
@@ -62,7 +62,7 @@ def settings_from(body):
         result[key] = supplied.get(key, choices[0])
         if result[key] not in choices:
             raise APIError(400, f'Unsupported {key}.')
-    for key, default, low, high in [('tempo', 100, 60, 180), ('length', 120, 30, 240), ('formulaRepeats', 2, 1, 4)]:
+    for key, default, low, high in [('tempo', 100, 60, 180), ('length', 30, 30, 240), ('formulaRepeats', 2, 1, 4)]:
         try:
             result[key] = int(supplied.get(key, default))
         except (ValueError, TypeError):
@@ -99,8 +99,8 @@ def synthesize(song):
         audio, mime, provider_lyrics = providers.music(song['lyrics'], content.LANGUAGES[song['language']], json.loads(song['settings']))
         name = song['id'] + ('.wav' if 'wav' in mime else '.mp3')
         (store.RUNTIME / name).write_bytes(audio)
-        store.execute("UPDATE songs SET status='ready', audio=?, mime=?, error=NULL, provider_lyrics=?,audio_origin='ElevenLabs Music' WHERE id=?",
-                      (name, mime, provider_lyrics, song['id']))
+        store.execute("UPDATE songs SET status='ready', audio=?, mime=?, error=NULL, provider_lyrics=?,audio_origin=? WHERE id=?",
+                      (name, mime, provider_lyrics, providers.MUSIC_PROVIDER_NAME, song['id']))
     except Exception as exc:
         message = str(exc) if isinstance(exc, providers.ProviderError) else 'Synthesis failed. No audio was created. Please retry.'
         store.execute("UPDATE songs SET status='failed', error=?,audio=NULL,mime=NULL,audio_origin=NULL WHERE id=?", (message, song['id']))
@@ -200,11 +200,11 @@ class Handler(BaseHTTPRequestHandler):
             return self.send(content.CATALOGUE)
         if path == '/api/providers':
             self.session()
-            return self.send({'configured': providers.configured(), 'mode': 'configured; unverified' if providers.configured() else 'demo',
+            return self.send({'configured': providers.configured(), 'mode': 'free local AI ready' if providers.configured() else 'free model setup required',
                               'lyricsModel': providers.LYRICS_MODEL, 'musicModel': providers.MUSIC_MODEL,
-                              'check': PROVIDER_CHECK, 'liveAudioVerified': bool(store.rows("SELECT id FROM songs WHERE status='ready' AND audio_origin='ElevenLabs Music' LIMIT 1")),
-                              'blocker': None if providers.configured() else 'No ElevenLabs Music API key configured. No generated songs are supplied in demo mode.',
-                              'capabilities': 'Lyrics, style arrays and chunk durations use native ElevenLabs composition-plan fields. BPM, vocal delivery and formula repetition are style preferences; final performance can vary. Hindi audio quality is unverified.'})
+                              'check': PROVIDER_CHECK, 'liveAudioVerified': bool(store.rows("SELECT id FROM songs WHERE status='ready' AND audio_origin=? LIMIT 1", (providers.MUSIC_PROVIDER_NAME,))),
+                              'blocker': providers.blocker(),
+                              'capabilities': 'ACE-Step accepts native BPM, duration and vocal language fields plus exact edited lyrics. Genre, mood, voice and repetition guide the caption. No payment or API key; CPU generation can be slow. Singing quality and Hindi pronunciation require review.'})
         if path == '/api/songs':
             session = self.session()
             return self.send([public_song(s) for s in store.rows('SELECT * FROM songs WHERE sap=? ORDER BY created DESC', (session['sap'],))])
@@ -328,12 +328,12 @@ class Handler(BaseHTTPRequestHandler):
             if language not in content.LANGUAGES:
                 raise APIError(400, 'Only English and Hindi are supported.')
             settings = settings_from(body)
-            mode = body.get('mode', 'demo')
-            if mode not in ('demo', 'live'):
-                raise APIError(400, 'Choose demo or live mode.')
+            mode = body.get('mode', 'free')
+            if mode not in ('demo', 'live', 'free'):
+                raise APIError(400, 'Choose free source-linked drafting or the offline template.')
             approved = store.rows('SELECT name,excerpt FROM uploads WHERE topic=? AND approved=1', (topic['id'],))
-            result = providers.lyrics(topic, content.LANGUAGES[language], settings, approved) if mode == 'live' else content.demo_lyrics(topic, language)
-            provenance = 'ElevenLabs planner generated; supplemental' if mode == 'live' else 'Offline template; supplemental; no audio'
+            result = providers.lyrics(topic, content.LANGUAGES[language], settings, approved) if mode in ('live', 'free') else content.demo_lyrics(topic, language)
+            provenance = 'Local source-linked template; supplemental; no LLM' if mode in ('live', 'free') else 'Offline template; supplemental; no audio'
             song_id = str(uuid.uuid4())
             store.execute('INSERT INTO songs (id,sap,topic,language,title,lyrics,settings,provenance,status,audio,mime,error,provider_lyrics,source_hash,created) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
                           (song_id, session['sap'], topic['id'], language, topic['title'], result, json.dumps(settings), provenance,
@@ -359,9 +359,12 @@ class Handler(BaseHTTPRequestHandler):
             elif action == 'synthesize':
                 limited(('synthesize', session['sap']), 10, 3600)
                 if not providers.configured():
-                    raise providers.ProviderError('Live sung music is blocked: ELEVENLABS_API_KEY is not configured. Paid Music API access is required. No song was fabricated. You can edit lyrics, take quizzes, or attach your own permitted audio.')
-                # Atomically claim the job, preventing duplicate billable requests.
+                    raise providers.ProviderError(providers.blocker())
+                # Serialize expensive inference to avoid exhausting RAM on a small free host.
                 with store.connect() as db:
+                    db.execute('BEGIN IMMEDIATE')
+                    if db.execute("SELECT id FROM songs WHERE status='generating' LIMIT 1").fetchone():
+                        raise APIError(409, 'The free music engine is busy with another song. Try again after it finishes.')
                     if db.execute("UPDATE songs SET status='generating',error=NULL WHERE id=? AND status!='generating'", (song['id'],)).rowcount != 1:
                         raise APIError(409, 'Song already generating.')
                 POOL.submit(synthesize, song)
@@ -404,7 +407,7 @@ class Handler(BaseHTTPRequestHandler):
                 (store.RUNTIME / filename).write_bytes(data)
             uid = str(uuid.uuid4())
             store.execute('INSERT INTO uploads VALUES(?,?,?,?,?,?,?)', (uid, body['topic'], name, excerpt, filename, 0, time.time()))
-            return self.send({'id': uid, 'approved': False, 'note': 'Pending admin review; excluded from AI lyric grounding until approved.'}, 201)
+            return self.send({'id': uid, 'approved': False, 'note': 'Pending admin review; becomes supplemental chapter material after approval.'}, 201)
         match = re.fullmatch(r'/api/admin/uploads/([a-f0-9-]+)/approve', path)
         if match:
             self.session(admin=True)

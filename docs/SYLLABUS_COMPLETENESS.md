@@ -2,7 +2,7 @@
 
 Baseline: 38 Calculus topics and 53 BEEE topics; all 10 uploaded units indexed in order.
 
-Every topic has its exact uploaded summary/formula reference, a supplemental Hindi explanation, supplemental revision guidance, English and Hindi offline lyric templates, and two supplemental quiz questions. Full textbook notes were not supplied. Live ElevenLabs lyric planning and music generation are unverified because no API key is configured. There are no bundled generated songs. Runtime reports show your actual saved draft/audio readiness.
+Every topic has its exact uploaded summary/formula reference, a supplemental Hindi explanation, supplemental revision guidance, English and Hindi offline lyric templates, and two supplemental quiz questions. Full textbook notes were not supplied. Free local ACE-Step music generation is wired into the website but remains unverified: model-weight downloads are blocked by the cloud network policy. Draft lyrics are templates, not LLM output. There are no bundled generated songs. Runtime reports show your actual saved draft/audio readiness.
 
 Source locations and every status column are in [the complete CSV](syllabus-completeness.csv).
 

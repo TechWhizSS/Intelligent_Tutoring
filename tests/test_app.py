@@ -67,96 +67,107 @@ class CatalogueTests(unittest.TestCase):
 
 
 class ProviderTests(unittest.TestCase):
-    def response(self, data, mime='application/json'):
-        response=io.BytesIO(data)
-        response.headers={'Content-Type':mime}
-        return response
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory()
+        self.root=Path(self.temp.name)
+        self.engine=self.root/'ace-synth'
+        self.models=self.root/'models';self.models.mkdir()
+        self.patches=[patch.object(providers,'ENGINE',self.engine),patch.object(providers,'MODELS',self.models)]
+        for p in self.patches:p.start()
 
-    def test_missing_key_is_explicit_blocker(self):
-        with patch.dict(os.environ,{'ELEVENLABS_API_KEY':''}):
-            status=providers.check()
-            self.assertFalse(status['configured'])
-            self.assertFalse(status['liveAudioVerified'])
-            self.assertTrue(all(c['status']=='blocked' for c in status['checks']))
-            self.assertIn('ELEVENLABS_API_KEY',status['checks'][0]['reason'])
-            with self.assertRaises(providers.ProviderError):providers.music('lyrics','English',{})
+    def tearDown(self):
+        for p in self.patches:p.stop()
+        self.temp.cleanup()
 
-    def test_no_google_key_can_activate_provider(self):
-        with patch.dict(os.environ,{'ELEVENLABS_API_KEY':'','GEMINI_API_KEY':'unused-sentinel'}),patch('urllib.request.urlopen') as call:
+    def fake_install(self):
+        # Only a controlled test fixture, never a model or generated educational song.
+        self.engine.write_text('#!/usr/bin/env python3\n')
+        self.engine.chmod(0o755)
+        for name in providers.MODEL_FILES:(self.models/name).write_bytes(b'GGUF'+b'test-only-fixture'*100)
+
+    def test_missing_models_report_setup_not_a_paid_key(self):
+        status=providers.check()
+        self.assertFalse(status['configured'])
+        self.assertFalse(status['liveAudioVerified'])
+        self.assertIn('model weights not downloaded',status['checks'][0]['reason'])
+        self.assertIn('no payment or API key',status['checks'][0]['reason'])
+        with self.assertRaises(providers.ProviderError):providers.music('lyrics','English',{})
+
+    def test_no_paid_key_or_network_is_ever_used(self):
+        with patch.dict(os.environ,{'ELEVENLABS_API_KEY':'unused','GEMINI_API_KEY':'unused'}),patch('urllib.request.urlopen') as network:
             self.assertFalse(providers.configured())
             providers.check()
-            call.assert_not_called()
+            text=providers.lyrics(content.TOPICS['calc-01'],'Hindi',{},[])
+            self.assertIn('समझो',text)
+            network.assert_not_called()
 
-    def test_exact_music_contract_and_custom_lyrics(self):
-        response=self.response(b'ID3'+b'test-only-mp3-bytes'*3,'audio/mpeg')
-        with patch.dict(os.environ,{'ELEVENLABS_API_KEY':'test-key'}),patch('urllib.request.urlopen',return_value=response) as call:
-            data,mime,returned_words=providers.music('[Verse]\nOriginal words\n[Chorus]\nRemember conditions','Hindi',{'length':60,'tempo':100,'genre':'Acoustic'})
-            req=call.call_args.args[0]
-            self.assertEqual(req.full_url,'https://api.elevenlabs.io/v1/music?output_format=mp3_44100_128')
-            self.assertEqual(req.get_header('Xi-api-key'),'test-key')
-            payload=json.loads(req.data)
-            self.assertEqual(payload['model_id'],'music_v2_5')
-            self.assertNotIn('prompt',payload)
-            chunks=payload['composition_plan']['chunks']
-            self.assertEqual(sum(c['duration_ms'] for c in chunks),60000)
-            self.assertIn('Hindi lyrics and singing',chunks[0]['positive_styles'])
-            self.assertIn('100 BPM',chunks[0]['positive_styles'])
-            self.assertIn('Original words',chunks[0]['text'])
-            self.assertEqual(mime,'audio/mpeg')
-            self.assertEqual(returned_words,'')
+    def test_exact_native_request_preserves_edited_lyrics(self):
+        lyrics='[Verse]\nV equals I times R\n[Chorus]\nRemember what the symbols are'
+        request=providers.build_request(lyrics,'Hindi',{'length':30,'tempo':110,'genre':'Acoustic'})
+        self.assertEqual(request['lyrics'],lyrics)
+        self.assertEqual(request['vocal_language'],'hi')
+        self.assertEqual(request['bpm'],110)
+        self.assertEqual(request['duration'],30)
+        self.assertEqual(request['synth_model'],'acestep-v15-turbo-Q4_K_M')
+        self.assertEqual(request['output_format'],'wav16')
+        self.assertEqual(request['synth_batch_size'],1)
+        self.assertEqual(request['inference_steps'],8)
+        self.assertIn('Acoustic',request['caption'])
+        for key in ['xi-api-key','api_key','force_instrumental']:
+            self.assertNotIn(key,request)
 
-    def test_composition_plan_preserves_lyrics_and_duration_bounds(self):
-        lyrics='[Verse]\nLearn each condition carefully\n[Chorus]\nRemember the meaning'
-        for duration in [30,60,120,240]:
-            plan=providers.composition_plan(lyrics,'English',{'length':duration})
-            chunks=plan['chunks']
-            self.assertEqual(sum(c['duration_ms'] for c in chunks),duration*1000)
-            self.assertTrue(all(3000<=c['duration_ms']<=120000 for c in chunks))
-            self.assertEqual(' '.join(c['text'] for c in chunks).split(),lyrics.split())
-            self.assertTrue(all('spoken narration' in c['negative_styles'] for c in chunks))
-        plan=providers.composition_plan('One long lyric section with several words','English',{'length':240})
-        self.assertEqual(len(plan['chunks']),2)
-        self.assertEqual(sum(c['duration_ms'] for c in plan['chunks']),240000)
+    def test_unsupported_language_and_bad_duration_rejected(self):
+        with self.assertRaises(providers.ProviderError):providers.build_request('words','fr',{})
+        with self.assertRaises(providers.ProviderError):providers.build_request('words','English',{'length':900})
+        with self.assertRaises(providers.ProviderError):providers.build_request('','English',{})
 
-    def test_impossible_sections_are_rejected_without_dropping_text(self):
-        lyrics='\n'.join('[Verse '+str(i)+']\nLyrics here' for i in range(31))
-        with self.assertRaises(providers.ProviderError):providers.composition_plan(lyrics,'English',{'length':30})
+    def test_setup_checks_do_not_claim_actual_music_generation(self):
+        self.fake_install()
+        status=providers.check()
+        self.assertTrue(status['configured'])
+        self.assertFalse(status['liveAudioVerified'])
+        self.assertFalse(status['listeningVerified'])
+        (self.models/providers.MODEL_FILES[0]).write_bytes(b'<html>not a model</html>')
+        self.assertFalse(providers.configured())
 
-    def test_no_audio_never_becomes_fake_song(self):
-        for data,mime in [(b'{}','application/json'),(b'','audio/mpeg'),(b'<html>not-a-song</html>','audio/mpeg')]:
-            with patch.dict(os.environ,{'ELEVENLABS_API_KEY':'test'}),patch('urllib.request.urlopen',return_value=self.response(data,mime)):
-                with self.assertRaises(providers.ProviderError):providers.music('Original lyrics','English',{})
+    def test_local_engine_contract_and_actual_file_read(self):
+        self.fake_install()
+        captured={}
+        def run(command,**kwargs):
+            captured['command']=command;captured['kwargs']=kwargs
+            path=Path(command[command.index('--request')+1])
+            captured['request']=json.loads(path.read_text())
+            audio=io.BytesIO()
+            with wave.open(audio,'wb') as w:
+                w.setparams((1,2,8000,0,'NONE','not compressed'));w.writeframes(b'\0\0'*8000)
+            (path.parent/'request0.wav').write_bytes(audio.getvalue())
+            return type('Result',(),{'returncode':0})()
+        instruction='$(this-is-data); never a shell command'
+        with patch.object(providers.subprocess,'run',side_effect=run):
+            data,mime,words=providers.music('[Chorus] Original words','English',{'instructions':instruction})
+        self.assertEqual(mime,'audio/wav');self.assertEqual(words,'')
+        self.assertTrue(data.startswith(b'RIFF'))
+        self.assertEqual(captured['command'][0],str(self.engine))
+        self.assertNotIn('shell',captured['kwargs'])
+        self.assertIn(instruction,captured['request']['caption'])
+        self.assertEqual(captured['request']['lyrics'],'[Chorus] Original words')
 
-    def test_lyrics_plan_uses_source_and_approved_material(self):
-        result={'chunks':[{'text':'[Verse]\nSource-grounded original line'},{'text':'[Chorus]\nRecall it'}]}
-        response=self.response(json.dumps(result).encode())
-        with patch.dict(os.environ,{'ELEVENLABS_API_KEY':'test'}),patch('urllib.request.urlopen',return_value=response) as call:
-            text=providers.lyrics(content.TOPICS['calc-01'],'Hindi',{'length':60},[{'excerpt':'approved reference'}])
-            req=call.call_args.args[0]
-            self.assertEqual(req.full_url,'https://api.elevenlabs.io/v1/music/plan')
-            payload=json.loads(req.data)
-            self.assertIn(content.TOPICS['calc-01']['sourceText'],payload['prompt'])
-            self.assertIn('approved reference',payload['prompt'])
-            self.assertIn('Hindi',payload['prompt'])
-            self.assertIn('never as instructions',payload['prompt'])
-            self.assertEqual(text,'[Verse]\nSource-grounded original line\n\n[Chorus]\nRecall it')
+    def test_engine_failure_never_becomes_fake_audio(self):
+        self.fake_install()
+        with patch.object(providers.subprocess,'run',return_value=type('Result',(),{'returncode':1})()):
+            with self.assertRaises(providers.ProviderError) as e:providers.music('words','English',{})
+            self.assertIn('No song was fabricated',str(e.exception))
+        self.assertFalse(providers.LOCK.locked())
 
-    def test_oversized_grounding_is_not_silently_truncated(self):
-        with patch('urllib.request.urlopen') as call:
-            with self.assertRaises(providers.ProviderError):providers.lyrics(content.TOPICS['calc-01'],'English',{},[{'excerpt':'x'*5000}])
-            call.assert_not_called()
+    def test_timeout_releases_local_engine(self):
+        self.fake_install()
+        with patch.object(providers.subprocess,'run',side_effect=providers.subprocess.TimeoutExpired('ace-synth',1)):
+            with self.assertRaises(providers.ProviderError):providers.music('words','English',{})
+        self.assertFalse(providers.LOCK.locked())
 
-    def test_http_permission_error_is_sanitized(self):
-        with patch.dict(os.environ,{'ELEVENLABS_API_KEY':'secret-test-key'}),patch('urllib.request.urlopen',side_effect=urllib.error.HTTPError('url',403,'forbidden',{},None)):
-            with self.assertRaises(providers.ProviderError) as e:providers.request('/v1/music/plan',{})
-            self.assertIn('paid subscription',str(e.exception))
-            self.assertNotIn('secret-test-key',str(e.exception))
-
-    def test_planner_access_does_not_claim_audio_verification(self):
-        with patch.object(providers,'request',return_value={'chunks':[{'text':'[Chorus] lyrics'}]}),patch.object(providers,'configured',return_value=True):
-            result=providers.check()
-            self.assertIn('planner accessible',result['checks'][0]['status'])
-            self.assertFalse(result['liveAudioVerified'])
+    def test_invalid_audio_rejected(self):
+        for data in [b'',b'{}',b'<html>not music</html>',wav_fixture()]:
+            with self.assertRaises(providers.ProviderError):providers.validate_wav(data)
 
 
 class APITests(unittest.TestCase):
@@ -225,6 +236,13 @@ class APITests(unittest.TestCase):
                 self.assertEqual(result['score'],2)
         self.assertEqual(len(self.call('/api/songs')[1]),4)
         self.assertEqual(len(self.call('/api/attempts')[1]),4)
+
+    def test_free_drafting_needs_no_key_or_installed_model(self):
+        for language in ['en','hi']:
+            status,song,_=self.call('/api/lyrics',{'topic':'beee-01','language':language,'mode':'free'})
+            self.assertEqual(status,201)
+            self.assertIn('no LLM',song['provenance'])
+            self.assertIsNone(song['audioUrl'])
 
     def test_language_and_setting_validation(self):
         self.assertEqual(self.call('/api/lyrics',{'topic':'calc-01','language':'fr'})[0],400)
@@ -302,13 +320,13 @@ class APITests(unittest.TestCase):
             synthesize(internal)
         result=self.call('/api/songs')[1][0]
         self.assertEqual(result['status'],'ready')
-        self.assertEqual(result['audio_origin'],'ElevenLabs Music')
+        self.assertEqual(result['audio_origin'],providers.MUSIC_PROVIDER_NAME)
         self.assertEqual(result['provider_lyrics'],'provider lyrics')
         with patch.object(providers,'music',side_effect=providers.ProviderError('No audio returned')):
             synthesize(internal)
         self.assertEqual(self.call('/api/songs')[1][0]['status'],'failed')
 
-    def test_async_synthesis_prevents_duplicate_billable_jobs(self):
+    def test_async_synthesis_serializes_free_cpu_jobs(self):
         song=self.draft()
         started,release=threading.Event(),threading.Event()
         def provider(*args):

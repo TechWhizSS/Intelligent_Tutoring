@@ -33,7 +33,7 @@ def main():
             sock.bind(('127.0.0.1', 0))
             port = sock.getsockname()[1]
         env = {**os.environ, 'APP_DATA_DIR': temp, 'HOST': '127.0.0.1', 'PORT': str(port),
-               'ELEVENLABS_API_KEY': '', 'ADMIN_SAP_ID': 'admin', 'ADMIN_PASSWORD': 'demo-admin'}
+               'FREE_MUSIC_HOME': str(Path(temp)/'missing-models'), 'ADMIN_SAP_ID': 'admin', 'ADMIN_PASSWORD': 'demo-admin'}
         server = subprocess.Popen([sys.executable, '-m', 'app.server'], cwd=ROOT, env=env,
                                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         url = f'http://127.0.0.1:{port}'
@@ -136,8 +136,8 @@ def main():
                 page.get_by_role('button', name='Approve reviewed excerpt', exact=True).click()
                 page.get_by_text('Admin-approved supplemental material', exact=True).wait_for()
                 page.get_by_role('button', name='Connections', exact=True).click()
-                page.get_by_role('button', name='Test configured credentials', exact=True).click()
-                wait_js(page, "document.querySelector('#provider-result').textContent.includes('ELEVENLABS_API_KEY')")
+                page.get_by_role('button', name='Check free engine setup', exact=True).click()
+                wait_js(page, "document.querySelector('#provider-result').textContent.includes('model weights not downloaded')")
                 assert errors == [], errors
                 browser.close()
             print('PASS: bilingual flows for both subjects, save, honest synthesis blocker, notes, quizzes, all 91 report rows, CSV/audio downloads, real browser playback, uninterrupted navigation, mobile/tablet layout, admin review, credential check, no JavaScript errors.')
