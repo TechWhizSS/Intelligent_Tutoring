@@ -123,8 +123,8 @@ def main():
                     page.set_viewport_size({'width': width, 'height': 844})
                     page.evaluate('window.scrollTo(0,0)')
                     page.screenshot(path=str(OUTPUT / f'studio-{width}.png'), full_page=True)
-                    overflow=page.evaluate("""() => [...document.querySelectorAll('body *')].filter(e=>e.getBoundingClientRect().right>window.innerWidth+1 && getComputedStyle(e).position!=='fixed').map(e=>({tag:e.tagName,cls:e.className,width:e.getBoundingClientRect().width,right:e.getBoundingClientRect().right})).slice(0,12)""")
-                    assert not page.evaluate('document.documentElement.scrollWidth > window.innerWidth'), f'Mobile overflow at {width}px: {overflow}'
+                    overflow=page.evaluate("""() => [...document.querySelectorAll('body *')].filter(e=>e.getBoundingClientRect().right>window.innerWidth+1 && getComputedStyle(e).position!=='fixed' && !e.closest('.nav')).map(e=>({tag:e.tagName,cls:e.className,width:e.getBoundingClientRect().width,right:e.getBoundingClientRect().right})).slice(0,40)""")
+                    assert not page.evaluate('document.documentElement.scrollWidth > window.innerWidth'), f'Mobile overflow at {width}px, document width {page.evaluate("document.documentElement.scrollWidth")}: {overflow}'
                 page.get_by_role('button', name='Sign out', exact=True).click()
                 page.locator('#sap').fill('admin')
                 page.locator('#password').fill('demo-admin')
