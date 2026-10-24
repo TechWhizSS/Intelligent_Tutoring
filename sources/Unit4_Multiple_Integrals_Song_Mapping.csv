@@ -1,0 +1,9 @@
+Sr. No,Unit,Chapter,Sub-Topic,Duration (Hrs),Mapped Song,Artist,Connection / Reason
+20,Unit 4,Multiple Integrals,Double Integral,1,Come Together,The Beatles,Integration over a two-dimensional region brings two directions of accumulation together into one value.
+21,Unit 4,Multiple Integrals,Change of Order of Integration,1.5,Turning Tables,Adele,Swapping dx dy for dy dx — reworking the region's description to flip the sequence of integration.
+22,Unit 4,Multiple Integrals,Change of Variables and Jacobian,1.5,Shape of You,Ed Sheeran,"Transforming coordinates from (x,y) to (u,v) reshapes the region, with the Jacobian scaling that change in shape."
+23,Unit 4,Multiple Integrals,Application of Double Integral to Find Area,1,Applause,Lady Gaga,"The theory gets put into practice — a concrete, showable application of the double integral to measure plane area."
+24,Unit 4,Multiple Integrals,Triple Integral,1,Three Little Birds,Bob Marley & The Wailers,"Integration extends one dimension further, over three variables — a playful numeric echo of 'three.'"
+25,Unit 4,Multiple Integrals,Change of Variable to Spherical Coordinates,1,Around the World,Daft Punk,Spherical coordinates suit regions with full rotational symmetry — a shape the same 'around the world' in every direction.
+26,Unit 4,Multiple Integrals,Change of Variable to Cylindrical Coordinates,1.5,Spinning Wheel,"Blood, Sweat & Tears","Cylindrical coordinates describe rotation about a fixed axis, like a wheel spinning around its centre."
+27,Unit 4,Multiple Integrals,Application of Triple Integral to Find Volume,1.5,Levels,Avicii,"Volume builds up layer by layer through the triple integral, echoing the song's rising, layered energy."

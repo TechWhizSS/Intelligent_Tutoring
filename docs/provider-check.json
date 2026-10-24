@@ -1,0 +1,33 @@
+{
+  "provider": "ACE-Step 1.5 local AI",
+  "configured": false,
+  "lyricsModel": "Local source-linked templates (editable; no LLM)",
+  "musicModel": "acestep-v15-turbo-Q4_K_M",
+  "liveAudioVerified": false,
+  "listeningVerified": false,
+  "price": "No paid API; runs locally using your host compute",
+  "mode": "free setup required",
+  "checks": [
+    {
+      "model": "acestep-v15-turbo-Q4_K_M",
+      "status": "blocked",
+      "reason": "Free AI music setup is incomplete: model weights not downloaded: acestep-v15-turbo-Q4_K_M.gguf, Qwen3-Embedding-0.6B-Q8_0.gguf, vae-BF16.gguf. Run python3 scripts/setup_free_music.py. The first download needs Hugging Face network access; no payment or API key is required. No song was fabricated.",
+      "engineReady": true,
+      "models": [
+        {
+          "file": "acestep-v15-turbo-Q4_K_M.gguf",
+          "ready": false
+        },
+        {
+          "file": "Qwen3-Embedding-0.6B-Q8_0.gguf",
+          "ready": false
+        },
+        {
+          "file": "vae-BF16.gguf",
+          "ready": false
+        }
+      ],
+      "ready": false
+    }
+  ]
+}
