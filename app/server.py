@@ -96,11 +96,12 @@ def seed_sample(sap):
 
 def synthesize(song):
     try:
+        origin = providers.provider_name()
         audio, mime, provider_lyrics = providers.music(song['lyrics'], content.LANGUAGES[song['language']], json.loads(song['settings']))
         name = song['id'] + ('.wav' if 'wav' in mime else '.mp3')
         (store.RUNTIME / name).write_bytes(audio)
         store.execute("UPDATE songs SET status='ready', audio=?, mime=?, error=NULL, provider_lyrics=?,audio_origin=? WHERE id=?",
-                      (name, mime, provider_lyrics, providers.MUSIC_PROVIDER_NAME, song['id']))
+                      (name, mime, provider_lyrics, origin, song['id']))
     except Exception as exc:
         message = str(exc) if isinstance(exc, providers.ProviderError) else 'Synthesis failed. No audio was created. Please retry.'
         store.execute("UPDATE songs SET status='failed', error=?,audio=NULL,mime=NULL,audio_origin=NULL WHERE id=?", (message, song['id']))
@@ -200,11 +201,13 @@ class Handler(BaseHTTPRequestHandler):
             return self.send(content.CATALOGUE)
         if path == '/api/providers':
             self.session()
-            return self.send({'configured': providers.configured(), 'mode': 'free local AI ready' if providers.configured() else 'free model setup required',
-                              'lyricsModel': providers.LYRICS_MODEL, 'musicModel': providers.MUSIC_MODEL,
-                              'check': PROVIDER_CHECK, 'liveAudioVerified': bool(store.rows("SELECT id FROM songs WHERE status='ready' AND audio_origin=? LIMIT 1", (providers.MUSIC_PROVIDER_NAME,))),
+            gpu = bool(providers.free_gpu.settings()) if providers.configured() else False
+            return self.send({'configured': providers.configured(), 'backend': 'gpu' if gpu else 'local',
+                              'mode': 'GPU connection configured' if gpu else 'free local AI ready' if providers.configured() else 'free model setup required',
+                              'lyricsModel': providers.LYRICS_MODEL, 'musicModel': providers.music_model() if providers.configured() else providers.MUSIC_MODEL,
+                              'check': PROVIDER_CHECK, 'liveAudioVerified': bool(store.rows("SELECT id FROM songs WHERE status='ready' AND audio_origin IN (?,?) LIMIT 1", (providers.MUSIC_PROVIDER_NAME, providers.free_gpu.PROVIDER))),
                               'blocker': providers.blocker(),
-                              'capabilities': 'ACE-Step accepts native BPM, duration and vocal language fields plus exact edited lyrics. Genre, mood, voice and repetition guide the caption. No payment or API key; CPU generation can be slow. Singing quality and Hindi pronunciation require review.'})
+                              'capabilities': 'ACE-Step accepts native BPM, duration and vocal language fields plus exact edited lyrics. Genre, mood, voice and repetition guide the caption. Use the local CPU or your free GPU notebook. No paid provider key; a private notebook connection key protects the GPU. Singing quality and Hindi pronunciation require review.'})
         if path == '/api/songs':
             session = self.session()
             return self.send([public_song(s) for s in store.rows('SELECT * FROM songs WHERE sap=? ORDER BY created DESC', (session['sap'],))])
@@ -320,6 +323,16 @@ class Handler(BaseHTTPRequestHandler):
             self.session(admin=True)
             limited(('provider-check', session['sap']), 3, 60)
             PROVIDER_CHECK = providers.check()
+            return self.send(PROVIDER_CHECK)
+        if path == '/api/admin/music-service':
+            self.session(admin=True)
+            limited(('music-connection', session['sap']), 5, 60)
+            # Same SQLite write lock used to claim synthesis: never switch engines mid-song.
+            with store.connect() as db:
+                db.execute('BEGIN IMMEDIATE')
+                if db.execute("SELECT id FROM songs WHERE status='generating' LIMIT 1").fetchone():
+                    raise APIError(409, 'Wait for the current song before changing the music connection.')
+                PROVIDER_CHECK = providers.save_connection(body.get('configuration'), body.get('local') is True)
             return self.send(PROVIDER_CHECK)
         if path == '/api/lyrics':
             limited(('lyrics', session['sap']), 30, 3600)

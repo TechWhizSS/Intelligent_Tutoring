@@ -1,6 +1,6 @@
-# Free local AI music: implementation and evidence
+# Free ACE-Step music: implementation and evidence
 
-Updated 24 October 2026 after the instruction to use only free resources. All paid music-service adapters have been removed. The application makes no calls to Google, ElevenLabs or another paid inference service.
+Updated 25 October 2026 after the instruction to use only free resources. All paid music-service adapters have been removed. No Google AI API, ElevenLabs or paid inference service is used. An optional user-run Colab GPU is accessed only through its owner-configured ACE-Step tunnel.
 
 ## Selected open-source implementation
 
@@ -36,3 +36,16 @@ No payment, paid account, provider key or subscription is needed. Once network a
 ## Attribution
 
 `acestep.cpp` is distributed under its upstream open-source license; source and license files remain in its local checkout. ACE-Step model attribution and licensing remain with the original ACE-Step authors. The setup manifest records source revision, resolved model revision and file SHA-256 checksums. No third-party code, binary or multi-gigabyte model is committed into this application repository.
+
+
+## Uploaded Android app technology: official GPU API
+
+Inspected `design-experience-main.zip`: the real singing route uses ACE-Step 1.5 on a user-run GPU, `/release_task`, `/query_result`, and `/v1/audio`, with a bearer key. The React demo’s oscillators do not sing. We implemented a separate official REST adapter in `app/free_gpu.py` and a website-specific notebook in `notebooks/Free_Singing_GPU.ipynb`, without copying the Android app, adding its other languages, or replacing this website’s curriculum.
+
+Verified the request names/statuses against upstream [API.md](https://github.com/ace-step/ACE-Step-1.5/blob/ca1e85fe9430179831e6bc6be790c332190a3866/docs/en/API.md) and inspected its loader at revision `ca1e85fe9430179831e6bc6be790c332190a3866`. The notebook pins that version and applies a guarded FP32 loader override for T4, because that pinned code does not implement the suggested generic dtype environment flag. CPU offload is enabled and the optional LM is disabled to reduce GPU requirements. Actual T4 memory usage/performance remains unverified.
+
+The website administrator uploads the notebook connection file. Its URL is restricted to an HTTPS Cloudflare quick tunnel or the official local loopback service on port 8001. A public tunnel requires a private key. The server performs an authenticated empty-task query before saving, stores the private configuration with mode 0600 in ignored runtime storage, never returns the key to students, never forwards credentials on redirects, and fetches audio only from the configured origin’s `/v1/audio`. Configuration changes are blocked during generation. Authentication failures, network restrictions, GPU failures, missing output, invalid WAVs and timeouts remain visible errors.
+
+No paid model subscription is introduced. Colab is a Google-hosted compute notebook, **not a Google AI API integration**. Free GPUs are limited and can be unavailable or disconnected. An account owner must start the notebook and retain its session. Codex cannot sign into that account or allocate a Colab GPU on their behalf. This cloud host must permit the generated tunnel host; existing network restrictions are not bypassed.
+
+**Verification boundary:** REST/security tests use clearly isolated fixtures. The notebook cells compile and the browser connection UI is tested. No user-run GPU is currently connected, no live song has been returned here, and notebook execution, vocals and musical quality are not claimed verified. The free local CPU option remains available when its model downloads are allowed.

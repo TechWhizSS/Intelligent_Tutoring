@@ -1,7 +1,7 @@
-"""Free local ACE-Step music generation. No paid API, account key, TTS or fake songs.
+"""Free ACE-Step music generation. No paid API, TTS or fabricated songs.
 
 The model weights must be downloaded once. Inference runs on the host's own CPU
-(or a configured GPU); no external music service is called during generation.
+(or a configured GPU). Optionally connect the owner's official free GPU API.
 """
 import io
 import json
@@ -11,6 +11,7 @@ import subprocess
 import tempfile
 import threading
 import wave
+from . import free_gpu
 
 ROOT = Path(__file__).resolve().parents[1]
 FREE_HOME = Path(os.getenv('FREE_MUSIC_HOME', ROOT / 'runtime/free-music')).resolve()
@@ -44,10 +45,20 @@ def readiness():
 
 
 def configured():
+    try:
+        if free_gpu.settings():
+            return True
+    except free_gpu.GPUError:
+        return False
     return readiness()['ready']
 
 
 def blocker():
+    try:
+        if free_gpu.settings():
+            return None
+    except free_gpu.GPUError as exc:
+        return str(exc)
     status = readiness()
     missing = [f['file'] for f in status['models'] if not f['ready']]
     if status['ready']:
@@ -59,6 +70,26 @@ def blocker():
         parts.append('model weights not downloaded: ' + ', '.join(missing))
     return ('Free AI music setup is incomplete: ' + '; '.join(parts) + '. Run python3 scripts/setup_free_music.py. '
             'The first download needs Hugging Face network access; no payment or API key is required. No song was fabricated.')
+
+
+def provider_name():
+    return free_gpu.PROVIDER if free_gpu.settings() else MUSIC_PROVIDER_NAME
+
+
+def music_model():
+    return free_gpu.MODEL if free_gpu.settings() else MUSIC_MODEL
+
+
+def save_connection(text=None, local=False):
+    try:
+        if local:
+            free_gpu.disconnect()
+        else:
+            verified = free_gpu.save(text)
+            return check(verified=verified)
+        return check()
+    except free_gpu.GPUError as exc:
+        raise ProviderError(str(exc)) from None
 
 
 def lyrics(topic, language, settings, approved):
@@ -109,6 +140,13 @@ def music(lyric_text, language, settings):
     if not LOCK.acquire(blocking=False):
         raise ProviderError('The free local music engine is busy. Please wait for the current song to finish.')
     try:
+        if free_gpu.settings():
+            try:
+                data, words = free_gpu.render(payload)
+                audio, mime, _ = validate_wav(data)
+                return audio, mime, words
+            except free_gpu.GPUError as exc:
+                raise ProviderError(str(exc)) from None
         jobs = ROOT / 'runtime/music-jobs'
         jobs.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=jobs, prefix='song-') as temp:
@@ -136,7 +174,24 @@ def music(lyric_text, language, settings):
         LOCK.release()
 
 
-def check():
+def check(verified=None):
+    try:
+        if free_gpu.settings():
+            result = {'provider': free_gpu.PROVIDER, 'configured': True, 'lyricsModel': LYRICS_MODEL,
+                      'musicModel': free_gpu.MODEL, 'liveAudioVerified': False, 'listeningVerified': False,
+                      'price': 'Owner-run free GPU; Colab availability and session limits apply',
+                      'mode': 'GPU configured; authenticated check required'}
+            try:
+                verified = verified or free_gpu.probe()
+                result['checks'] = [{'status': 'authenticated; generation unverified', **verified}]
+                result['mode'] = 'GPU API authenticated; generation unverified'
+            except free_gpu.GPUError as exc:
+                result['configured'] = False
+                result['checks'] = [{'status': 'blocked', 'reason': str(exc)}]
+            return result
+    except free_gpu.GPUError as exc:
+        return {'configured': False, 'liveAudioVerified': False, 'listeningVerified': False,
+                'checks': [{'status': 'blocked', 'reason': str(exc)}]}
     status = readiness()
     return {'provider': MUSIC_PROVIDER_NAME, 'configured': status['ready'], 'lyricsModel': LYRICS_MODEL,
             'musicModel': MUSIC_MODEL, 'liveAudioVerified': False, 'listeningVerified': False,

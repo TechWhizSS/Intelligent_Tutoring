@@ -1,4 +1,6 @@
 .env
+song-service.env
+music-service.json
 __pycache__/
 *.pyc
 runtime/

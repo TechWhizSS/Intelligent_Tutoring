@@ -137,6 +137,15 @@ def main():
                 page.get_by_role('button', name='Approve reviewed excerpt', exact=True).click()
                 page.get_by_text('Admin-approved supplemental material', exact=True).wait_for()
                 page.get_by_role('button', name='Connections', exact=True).click()
+                page.locator('#gpu-form').wait_for()
+                assert page.get_by_role('link',name='free Colab singing notebook ↗').count()==1
+                # An invalid connection file is rejected as data before any network call.
+                page.locator('#gpu-file').set_input_files({'name':'song-service.env','mimeType':'text/plain','buffer':b'NOT_A_CONNECTION=do-not-execute'})
+                page.get_by_role('button',name='Connect and test GPU',exact=True).click()
+                wait_js(page,"document.querySelector('#toast').textContent.includes('not a supported notebook connection file')")
+                assert page.locator('#gpu-file').input_value()!=''
+                page.get_by_role('button',name='Use local CPU engine',exact=True).click()
+                wait_js(page,"document.querySelector('#toast').textContent === 'Local CPU engine selected.'")
                 page.get_by_role('button', name='Check free engine setup', exact=True).click()
                 wait_js(page, "document.querySelector('#provider-result').textContent.includes('model weights not downloaded')")
                 assert errors == [], errors

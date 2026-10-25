@@ -313,6 +313,32 @@ class APITests(unittest.TestCase):
         self.assertIn(upload['id'],[u['id'] for u in self.call('/api/topics/beee-01')[1]['uploads']])
         self.assertEqual(len(content.TOPICS),91)
 
+    def test_gpu_connection_requires_admin_and_hides_secrets(self):
+        from app import free_gpu
+        config=Path(TEMP.name)/('connection-'+os.urandom(4).hex()+'.json')
+        connection='LOCAL_MUSIC_URL=https://test-gpu.trycloudflare.com\nLOCAL_MUSIC_API_KEY=private-test-only-key\n'
+        path='/api/admin/music-service'
+        with patch.object(free_gpu,'CONFIG',config),patch.dict(os.environ,{'LOCAL_MUSIC_URL':''}):
+            self.assertEqual(self.call(path,{'configuration':connection})[0],403)
+            self.call('/api/login',{'sap':'admin','password':'demo-admin'})
+            with patch.object(free_gpu,'request',return_value=[]) as network:
+                status,result,_=self.call(path,{'configuration':connection})
+            self.assertEqual(status,200)
+            self.assertTrue(network.called)
+            self.assertFalse(result['liveAudioVerified'])
+            status,result,_=self.call('/api/providers')
+            self.assertEqual(result['backend'],'gpu')
+            self.assertTrue(result['configured'])
+            self.assertNotIn('private-test-only-key',json.dumps(result))
+            self.assertNotIn('test-gpu.trycloudflare.com',json.dumps(result))
+            # A failed replacement must preserve the authenticated previous connection.
+            with patch.object(free_gpu,'request',side_effect=free_gpu.GPUError('offline')):
+                self.assertEqual(self.call(path,{'configuration':connection.replace('test-gpu','new-gpu')})[0],503)
+            self.assertIn('test-gpu',config.read_text())
+            self.assertEqual(self.call(path,{'local':True})[0],200)
+            self.assertFalse(config.exists())
+            self.assertEqual(self.call('/api/providers')[1]['backend'],'local')
+
     def test_worker_persists_only_actual_returned_audio(self):
         song=self.draft('beee-01')
         internal=store.rows('SELECT * FROM songs WHERE id=?',(song['id'],))[0]
