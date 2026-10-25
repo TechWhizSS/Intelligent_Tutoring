@@ -8,6 +8,10 @@ The current interface uses the Gemini website handoff only. No music API key is 
 
 **Verification boundary:** no actual generated educational song or singing quality has been verified here. Clipboard/navigation and audio attachment/player tests do not prove Gemini music generation. See [provider evidence](docs/PROVIDERS.md).
 
+## Native Android app
+
+An enhanced native Android edition is available under [`android/`](android/README.md), adapted from the uploaded app with the sunrise theme, all 91 Calculus/BEEE topics, English/Hindi, local drafts/library, notes/quizzes, a completeness report, direct owner-run ACE-Step GPU support and Gemini handoff. See its README for build/install commands and the music connection steps. The website remains Gemini-only. Actual GPU singing has not been verified here.
+
 ## Open on your phone
 
 [Open Syllabus to Song](https://syllabus-to-song-studio.aptcat4096.chatgpt.site) in Chrome or Safari. If prompted, sign in with the ChatGPT account that owns this private site, then use the sample student login. The interface adapts to phones and tablets; no laptop or localhost link is needed.
