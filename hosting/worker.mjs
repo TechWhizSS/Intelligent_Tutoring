@@ -62,7 +62,18 @@ async function downloadGenerated(config,file){
 // Official ElevenLabs Music API only. No TTS, paid upgrades or credit purchases.
 async function elevenFetch(key,path,body){
  let r;try{r=await fetch('https://api.elevenlabs.io/v1/'+path,{method:body?'POST':'GET',headers:{'xi-api-key':key,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,redirect:'manual',signal:AbortSignal.timeout(body?180000:30000)})}catch{error(503,'ElevenLabs could not be reached. No automatic retry or payment was made.')}
- if(!r.ok){if(r.status===401)error(503,'ElevenLabs rejected the API key or its permissions.');if([402,403].includes(r.status))error(503,'ElevenLabs blocked Music API access for this account. Its official Music API currently requires a paid subscription. No upgrade or payment was made.');if(r.status===429)error(503,'ElevenLabs quota or rate limit reached. No audio was generated.');error(503,'ElevenLabs music request failed (HTTP '+r.status+'). No audio was fabricated.')}
+ if(!r.ok){
+  let detail;try{const raw=await r.text();if(raw.length<16000)detail=JSON.parse(raw)?.detail}catch{}
+  const status=typeof detail?.status==='string'?detail.status:'';
+  if(['missing_permissions','missing_permission'].includes(status))error(503,path==='user/subscription'?'ElevenLabs key is missing User: Read (user_read). Edit this key in ElevenLabs, enable User Read, save, then reconnect.':'ElevenLabs key is missing the Music generation permission. Edit the key permissions, save, then reconnect.');
+  if(['invalid_api_key','api_key_not_found','invalid_authorization_header'].includes(status))error(503,'ElevenLabs says this API key is invalid. Copy the full secret API key, not its key ID. Create a replacement if it expired or was revoked.');
+  if(['paid_plan_required','music_requires_paid_subscription','subscription_required'].includes(status))error(503,'ElevenLabs requires a paid subscription for Music API access. No upgrade or payment was made.');
+  if(r.status===401)error(503,'ElevenLabs returned HTTP 401. Check the full secret key, its expiry, and User Read permission for the account check. No key was saved.');
+  if(path==='user/subscription'&&r.status===403)error(503,'ElevenLabs denied the account check (HTTP 403). Check User Read permission and any workspace or IP restrictions on this key. Music access has not been tested.');
+  if([402,403].includes(r.status))error(503,'ElevenLabs blocked Music API access for this account. Its official Music API currently requires a paid subscription. No upgrade or payment was made.');
+  if(r.status===429)error(503,'ElevenLabs quota or rate limit reached. No audio was generated.');
+  error(503,'ElevenLabs music request failed (HTTP '+r.status+'). No audio was fabricated.');
+ }
  return r;
 }
 function elevenPlan(song){

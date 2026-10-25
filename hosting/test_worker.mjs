@@ -57,6 +57,13 @@ try{
  assert.ok(!JSON.stringify(ready).includes('gpuVersion'));
 }finally{globalThis.fetch=nativeFetch}
 
+// Provider error codes must be distinguished without echoing secret messages.
+for(const [status,code,expected] of [[401,'missing_permissions',/User: Read/],[401,'invalid_api_key',/full secret API key/],[403,'paid_plan_required',/paid subscription/]]){
+ globalThis.fetch=async()=>new Response(JSON.stringify({detail:{status:code,message:'private-provider-message-do-not-echo'}}),{status});
+ const failed=await call('/api/admin/elevenlabs',{apiKey:'test-only-eleven-key'});
+ assert.equal(failed.status,503);assert.match(failed.body.error,expected);assert.ok(!JSON.stringify(failed.body).includes('private-provider-message'));
+}
+globalThis.fetch=nativeFetch;
 // Official ElevenLabs protocol. These are controlled fixtures, not live songs.
 assert.equal((await call('/api/admin/elevenlabs',{apiKey:'bad\nheader-key'})).status,400);
 let elevenTier='free',musicCalls=0,blockMusic=true;
