@@ -1,0 +1,10 @@
+{
+  "report_date": "25 October 2026",
+  "website": "https://syllabus-to-song-studio.aptcat4096.chatgpt.site",
+  "apk": "https://github.com/TechWhizSS/Intelligent_Tutoring/raw/refs/heads/codex/development/android/downloads/SyllabusToSong-v1.0-sunrise.apk",
+  "website_images": "Current code rendered in Chromium with isolated sample drafts; no generated/fixture audio seeded.",
+  "android_images": "Current native Compose UI rendered using Robolectric SDK 35 native graphics; not physical-device screenshots.",
+  "verified_audio_generation": false,
+  "source_branch": "codex/development",
+  "source_commit": "590a3d28bbdfdaac6a0d7f2bb3aa05b85e827353"
+}

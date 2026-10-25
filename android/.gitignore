@@ -1,0 +1,20 @@
+*.iml
+.gradle/
+.kotlin/
+.idea/
+local.properties
+**/build/
+.DS_Store
+*.jks
+*.keystore
+.env
+.env.local
+server/.venv/
+server/generated/
+server/melodies/
+**/__pycache__/
+
+# Research audio and aligned lyrics remain local; commit provenance/manifests only.
+datasets/raw/
+datasets/prepared/
+datasets/exports/

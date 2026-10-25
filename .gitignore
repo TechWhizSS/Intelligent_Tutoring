@@ -1,0 +1,10 @@
+.env
+song-service.env
+music-service.json
+__pycache__/
+*.pyc
+runtime/
+test-results/
+.venv/
+# Local development secrets
+/.env.local

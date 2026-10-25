@@ -1,0 +1,925 @@
+Course Policy  Basic Electrical and Electronics Engineering 
+ 
+Mukesh Patel School of Technology Management & Engineering 
+School of Technology Management and Engineering 
+Course Policy Document 
+Course Name–Basic Electrical and Electronics Engineering (702EX0C001) 
+Program and Semester:B.Tech./MBATech. (all 
+branches) Semester-I/II 
+Pre-requisiteCourse: Physics and Mathematics 
+(Pre-university level) 
+Academic Year:2024-25 
+Credit Details: 
+ 
+ 
+L T P C H 
+2 0 2 3 4 
+Name of Course Faculty: 
+Dr. Ushma Ahuja 
+Program: B. Tech. Artificial Intelligence , Mumbai 
+campus 
+Contact Details: ushma.ahuja@nmims.edu 
+Office hours: 9 am to 4 pm 
+Faculty associated with the course: - 
+1. Dr. Manoj Sankhe (Mumbai) 
+2. Dr. Anjana Rodrigues (Mumbai) 
+3. Dr. Avinash Tandle (Mumbai) 
+4. Dr. Vikas Khare (Indore) 
+5. Dr. Rahul Koshti (Hyderabad) 
+6. Dr. Rehan Ahmed (Shirpur) 
+7. Prof. Sunil Chaudhari (Shirpur) 
+8. Prof. Divyang Jadav (Navi Mumbai) 
+9. Prof. Pankaj Gulhane (Chandigarh) 
+10. Prof. Tazeen Shaikh (Mumbai) 
+11. Prof. Archana Bomnale (Mumbai) 
+Pre-Course Activity: Nil 
+ 
+ 
+Course link: 
+ 
+1. Introduction to the Course 
+1.1 Importance of the Course 
+1.1.1 Domain Relevance:  
+This course helps students to understand fundamental principles of 
+Electrical Engineering, also it provides an overview of evolution of 
+electronics, and introduces the working principle and examples of electronic 
+devices and circuits to make students understand the impact of technology 
+in a global and societal context. 
+ 
+1.1.2 Industry Relevance:  
+Electrical and electronics engineering is at the forefront of developing new 
+technologies for several industries including transport, healthcare, construction, and 
+robotics. With the rapid expansion of the technology sector, the demand for those 
+who can create, understand, and alter electrical control systems has risen. Electrical 
+and electronic engineers create and improve systems to benefit society. Electrical 
+Course Policy  Basic Electrical and Electronics Engineering 
+ 
+design can become a very complex topic, especially where large installations are 
+concerned (such as energy grids) or even within highly advanced pieces of small 
+hardware (such as those used in smartphones). Therefore, if to be able to work upon 
+such systems, a solid understanding of basic circuit design is required which is offered 
+by this course. 
+1.2 Objectives of the Course: 
+1.2.1 To equip the students with the ability to solve, assemble   and test 
+simple DC electrical circuits 
+1.2.2 To equip the students with the ability to solve, assemble   and test 
+simple AC electrical circuits 
+1.2.3 To obtain a basic understanding of the working principle and 
+applications of electronics devices 
+ 
+2. Course Outcomes (CO), Mapping with Program Outcomes (PO), and 
+Program Specific Outcomes (PSO) 
+2.1 Course Outcomes 
+After successful completion of the course, a student will be able to 
+2.1.1 CO1:Interpret DC circuits, theorems and time domain analysis of first 
+order RL circuit 
+2.1.2 CO2: Analyze series and parallel AC circuits and compare star/delta 
+configurations 
+2.1.3 CO3: Comprehend the principles of transformer and electrical machines 
+2.1.4 CO4: Review the construction, working principle and applications of 
+electronics devices and logic circuits 
+2.2 Program Outcomes(PO) the course contributed to: 
+2.2.1 PO-1: Apply the knowledge of mathematics, science, engineering 
+fundamentals, and an engineering specialization to the solution of complex 
+engineering problems. 
+2.2.2 PO-2: Identify, formulate, review research literature and analyze complex 
+engineering problems reaching substantiated conclusions using first 
+principles of mathematics, natural sciences, and engineering sciences. 
+2.2.3 PO-3: Design solutions for complex engineering problems and design 
+system components or processes that meet the specified needs with 
+appropriate consideration for the public health and safety, and the cultural, 
+societal and environmental considerations. 
+2.2.4 PO-4: Use research-based knowledge and research methods including 
+design of experiments, analysis and interpretation of data, and synthesis of 
+the information to provide valid conclusions. 
+Course Policy  Basic Electrical and Electronics Engineering 
+ 
+2.2.5 PO-5: Create, select, and apply appropriate techniques, resources, and 
+modern engineering and IT tools including prediction and modeling to 
+complex engineering activities with an understanding of the limitations. 
+2.2.6 PO-6: Apply reasoning informed by the contextual knowledge to assess 
+societal, health, safety, legal and cultural issues and the consequent 
+responsibilities relevant to the professional engineering practice. 
+2.2.7 PO-7: Understand the impact of the professional engineering solutions in 
+societal and environmental contexts, and demonstrate the knowledge of, 
+and need for sustainable development. 
+2.2.8 PO-8: Apply ethical principles and commit to professional ethics and 
+responsibilities and norms of the engineering practice. 
+2.2.9 PO-9: Apply ethical principles and commit to professional ethics and 
+responsibilities and norms of the engineering practice. 
+2.2.10 PO-10: Communicate effectively on complex engineering activities 
+with the engineering community and with society at large, such as, being 
+able to comprehend and write effective reports and design documentation, 
+make effective presentations, and give and receive clear instructions. 
+2.2.11 PO-11: Demonstrate knowledge and understanding of the engineering and 
+management principles and apply these to one’s own work, as a member and 
+leader in a team, to manage projects and in multidisciplinary environments. 
+2.2.12 PO-12: Recognize the need for, and have the preparation and ability to 
+engage in independent and life-long learning in the broadest context of 
+technological change. 
+ 
+2.3 Program Specific Outcomes (PSO):  
+2.3.1 PSO1: Apply the basic sciences and engineering knowledge in the design and 
+development of complex systems in the areas related to electronics and 
+communication engineering 
+2.3.2 PSO2:Use the cutting-edge hardware and software tools with the obtained 
+technical and managerial skills to design software and systems for applications 
+including signal processing, communication engineering, computer networks, 
+VLSI design, and embedded systems 
+2.3.3 PSO3: Possess the attitude of continuous learning for producing effective 
+solutions for the applications, directly and indirectly, related to Electronics and 
+Communication engineering 
+ 
+Course Policy  Basic Electrical and Electronics Engineering 
+ 
+ 
+CO-PO Mapping 
+ PO1  PO2  PO3  PO4  PO5  PO6  PO7  PO8  PO9  PO10  PO11  PO12  PSO1 PSO2 PSO3 
+CO1  3 3 2   2      1 3  2 
+CO2  3 3    2      1 3  2 
+CO3  3     2      1 3  2 
+CO4  3 2 2   2      1 3  3 
+Mapping Levels: 1- High, 2-Medium, 3-Low 
+2.4 Student Outcomes (SO) (For ABET accredited Programs): 
+2.4.1 SO-1: Identify, formulate, and solve complex engineering problems by applying 
+principles of engineering, science, and mathematics. 
+2.4.2 SO-2: Apply engineering design to produce solutions that meet specified needs 
+with consideration of public health, safety, and welfare, as well as global, cultural, 
+social, environmental, and economic factors. 
+2.4.3 SO-3: Communicate effectively with a range of audiences. 
+2.4.4 SO-4: Recognize ethical and professional responsibilities in engineering 
+situations and make informed judgments, which must consider the impact of 
+engineering solutions in global, economic, environmental, and societal contexts. 
+2.4.5 SO-5: Function effectively on a team whose members together provide leadership, 
+create a collaborative and inclusive environment, establish goals, plan tasks, and 
+meet objectives. 
+2.4.6 SO-6: Develop and conduct appropriate experimentation, analyze and interpret 
+data, and use engineering judgment to draw conclusions. 
+2.4.7 SO-7: Acquire and apply new knowledge as needed, using appropriate learning 
+strategies. 
+ 
+3. Teaching-learning methodology  
+3.1  Instruction Plan 
+Lecture 
+No. 
+Topic Teaching 
+Method* 
+Blooms 
+Level 
+Resources COs 
+mapped 
+Assessment 
+and 
+Evaluation 
+Unit 1: DC Circuits 
+1 Electrical Circuit 
+Elements (R, L, C)-
+Properties of elements, 
+applications. Voltage 
+and Current sources- 
+Whitebo
+ard and 
+PPT Underst
+and 
+TB1, Ch-1, 
+pp. 1.2 
+CO1 Lab 
+submission, 
+Class Test-
+1, TEE 
+Course Policy  Basic Electrical and Electronics Engineering 
+ 
+Symbols, polarity. 
+Source transformation 
+2 Analysis of simple 
+circuits - Resistance in 
+series and parallel 
+(Theory and 
+numerical). Voltage 
+and Current divider 
+rule and its numerical. 
+Whitebo
+ard and 
+PPT 
+Underst
+and 
+TB1, Ch-1, 
+pp. 1.10 
+ 
+ 
+CO1 Lab 
+submission, 
+Class Test-
+1, TEE 
+3 KCL and KVL Statements, 
+Mesh analysis- Steps 
+followed and numerical 
+(Excluding supermesh)  
+Whitebo
+ard and 
+PPT 
+Analyse 
+TB1, Ch-1, 
+pp. 2.2 
+ CO1 
+Lab 
+submission, 
+Class Test-
+1, TEE 
+4 Nodal analysis- Steps 
+followed and numerical 
+(Excluding supernode) 
+Whitebo
+ard and 
+PPT Apply 
+TB1, Ch-1, 
+pp. 2.48 
+ 
+CO1 Lab 
+submission, 
+Class Test-
+1, TEE 
+5 Superposition 
+Theorem- Statement, 
+Explanation and 
+Numerical. 
+(considering 
+independent voltage 
+and current sources) 
+Whitebo
+ard and 
+PPT 
+Apply 
+ 
+TB1, Ch-1, 
+pp. 2.116 
+ 
+ 
+CO1 
+Lab 
+submission, 
+Class Test-
+1, TEE 
+6 Thevenin’s Theorem- 
+Statement, 
+Explanation and 
+Numerical.  
+Whitebo
+ard and 
+PPT 
+Apply 
+ 
+TB1, Ch-2, 
+pp. 2.153 
+ 
+ 
+CO1 
+Lab 
+submission, 
+Class Test-
+1, TEE 
+7 Norton’s Theorem- 
+Statement, 
+Explanation and 
+Numerical.  
+Whitebo
+ard and 
+PPT 
+Apply 
+ 
+TB1, Ch-2, 
+pp. 2.188 
+ 
+ 
+CO1 
+Lab 
+submission, 
+Class Test-
+1, TEE 
+8 Time domain Analysis 
+of first order RL 
+Circuits Derivation for 
+growth of current and 
+decay of current  
+Whitebo
+ard and 
+PPT 
+Underst
+and 
+ 
+ 
+CO1 
+Lab 
+submission, 
+Class Test-
+1, TEE 
+Unit 2: AC circuits 
+9 Generation of alternating 
+voltage, Basic terms related 
+to Alternating quantities 
+(Waveform, cycle, 
+Whitebo
+ard and 
+PPT 
+Underst
+and 
+TB1, Ch-3, 
+pp. 3.2 CO2 
+Lab 
+submission, 
+Class Test-
+1, TEE 
+
+Course Policy  Basic Electrical and Electronics Engineering 
+ 
+frequency, Phase, Phase 
+difference) (Numerical 
+based on instantaneous 
+values, frequency and time 
+period) Root Mean Square, 
+Average value (for sine 
+wave), Mathematical 
+representation of phasors 
+(representation in 2 forms- 
+rectangular form, polar 
+form) 
+10 Class Test 1 
+11 Analysis of AC circuits - 
+containing resistance only, 
+Inductance only, 
+Capacitance only), 
+Derivation includes 
+parameters such as 
+voltage, current,  
+Waveforms, Phasor 
+diagram, Impedance, phase 
+difference, power factor, 
+and power  
+Whitebo
+ard and 
+PPT 
+Underst
+and, 
+Analyse 
+TB1, Ch-4, 
+pp. 4.2 CO2 
+Lab 
+submission, 
+Class Test-
+2, TEE 
+12 A.C analysis of series R-L 
+circuit, Derivation includes 
+parameters such as 
+current, waveforms, 
+Phasor diagram, 
+impedance, power and 
+comment on power 
+factor.Numerical based on 
+series R-L circuit  
+Whitebo
+ard and 
+PPT 
+Underst
+and, 
+Analyse 
+TB1, Ch-4, 
+pp. 4.10 CO2 
+Lab 
+submission, 
+Class Test-
+2, TEE 
+13 A.C analysis of series R-C 
+circuit, Derivation includes 
+parameters such as 
+current, waveforms, 
+Phasor diagram, 
+impedance, power and 
+comment on power factor, 
+Analysis of series RLC 
+circuit considering 3 cases:  
+(XL>XC), (XL<XC) and 
+(XL=XC)  
+Whitebo
+ard and 
+PPT 
+Underst
+and, 
+Analyse 
+TB1, Ch-4, 
+pp. 4.36 CO2 
+Lab 
+submission, 
+Class Test-
+2, TEE 
+14 Resonance concept, 
+important properties of 
+Whitebo
+ard and 
+PPT 
+Underst
+and, 
+Analyse 
+TB1, Ch-4, 
+4.90 CO2 Lab 
+submission, 
+Course Policy  Basic Electrical and Electronics Engineering 
+ 
+series resonance circuit, 
+expression of resonant 
+frequency, parameter with 
+respect to the series RLC 
+(Power factor, current, 
+voltage, phasor diagram, 
+expression of quality factor, 
+bandwidth concept, 
+behavior of Behaviors of R, 
+L, C with change in 
+frequency) (To be covered 
+in lab with graph 
+verification) 
+Numerical based on 
+series resonance circuit  
+Class Test-
+2, TEE 
+15 Basic introduction to 
+parallel resonance circuit, 
+Polyphase system, 
+Advantages of Three phase 
+system over single phase 
+system, star and delta 
+connections, Relation 
+between phase & line 
+voltages, and phase & line 
+currents in star 
+connections (no 
+derivation) 
+Whitebo
+ard and 
+PPT 
+Underst
+and, 
+Analyse 
+TB1, Ch-4, 
+pp. 4.106, 
+Ch-5, pp. 
+5.2 
+CO2 
+Lab 
+submission, 
+Class Test-
+2, TEE 
+16 Relation between phase & 
+line voltages and phase & 
+line currents in Delta 
+connections. (no 
+derivation), Numerical 
+based on star and delta 
+connections  
+Whitebo
+ard and 
+PPT 
+Underst
+and, 
+Analyse 
+TB1, Ch-5, 
+pp. 5.6  CO2 
+Lab 
+submission, 
+Class Test-
+2, TEE 
+Unit 3: Transformers and Motors 
+17 Transformer- construction, 
+working, EMF Equation of 
+1-phase transformer, 
+Transformation ratio, Full 
+load current calculation. 
+Introduction to voltage 
+regulation and maximum 
+efficiency, Numerical on 
+above topics. 
+Whitebo
+ard and 
+PPT 
+Underst
+and 
+TB1, Ch-6, 
+pp. 6.2 CO3 Class Test-
+2, TEE 
+Course Policy  Basic Electrical and Electronics Engineering 
+ 
+18 Ideal and practical 
+transformer (brief idea, no 
+phasor diagrams and its 
+explanation), Losses in 
+transformer- classification, 
+Equivalent circuit of a 
+transformer (no 
+numerical). 
+Whitebo
+ard and 
+PPT 
+Underst
+and 
+TB1, Ch-6, 
+pp. 6.13 CO3 Class Test-
+2, TEE 
+19 DC motor- Construction, 
+working principle, 
+applications, Classification 
+of DC Motor- Shunt and 
+series (only brief 
+introduction with 
+diagram). 
+Whitebo
+ard and 
+PPT 
+Underst
+and 
+TB1, Ch-7, 
+pp. 7.2 
+ 
+ 
+CO3 
+Lab 
+submission, 
+Class Test-
+2, TEE 
+20 3 phase Induction motor- 
+Construction, working 
+principle, and 
+applications. 
+Whitebo
+ard and 
+PPT 
+Underst
+and 
+TB2, Ch-15, 
+pp. 589 
+ 
+ 
+CO3 Class Test-
+2, TEE 
+21 
+Single phase Induction 
+motor- Construction, 
+working principle, and 
+applications. 
+Whitebo
+ard and 
+PPT 
+Underst
+and 
+TB2, Ch-15, 
+pp. 589 
+ 
+ 
+ 
+CO3 Class Test-
+2, TEE 
+22 Class Test 2 
+Unit 4: Analog Electronics 
+23 Basics of diodes, Diode 
+Rectifiers- Half wave and 
+Full wave: 
+● Circuit diagram, working 
+and waveforms Zener 
+Diode 
+● Basic operation 
+● Application as voltage 
+regulator. 
+BJT (N-P-N) Symbol, 
+working, application as an 
+inverting switch. 
+Whitebo
+ard and 
+PPT 
+Apply 
+ 
+TB3, Ch-19, 
+pp. 413 CO4 
+Lab 
+submission, 
+TEE 
+24 Opto-electronic devices- 
+Concept, working 
+principle, types of 
+optoelectronics devices 
+(Photo diode, solar cells, 
+PPT 
+Apply 
+ 
+ 
+ 
+CO4 TEE 
+
+Course Policy  Basic Electrical and Electronics Engineering 
+ 
+LEDs), Opto-coupler-
+working, and 
+Applications. 
+Transducer- Need, 
+Definition, Block 
+diagram (sensing and 
+transduction element), 
+applications. 
+25 Operational amplifier - 
+Block diagram, Inverting 
+and non- inverting 
+amplifier, Op-amp as a 
+comparator and RC 
+phase shift oscillator 
+Whitebo
+ard and 
+PPT 
+Apply 
+ 
+TB3, Ch-23, 
+pp.480 CO4 TEE 
+26 IC-555 timer- Pin 
+diagram and working. 
+Monostable 
+Multivibrators  
+PPT 
+Underst
+and 
+ 
+ 
+CO4 TEE 
+Unit 5: Digital Electronics 
+27 Logic gates – AND, OR, 
+NOT, Truth Table, Gate 
+Symbol, DeMorgan 
+Theorem Universal gates – 
+NAND, NORTruth Table, 
+Gate Symbol Exclusive 
+gates – XOR, XNOR, Truth 
+Table, Gate Symbol 
+Whitebo
+ard and 
+PPT 
+Apply TB3, Ch-26, 
+pp. 524 CO4 
+Lab 
+submission, 
+TEE 
+28 Implementation of 
+Boolean expressions 
+using logic gates with 
+examples (Only using 
+basic logic gates) 
+● Boolean Laws 
+● Simplification of 
+sum of products 
+(SOP) and 
+Demonstration of 
+product of sums (POS) 
+function 
+Whitebo
+ard and 
+PPT 
+Apply TB3, Ch-26, 
+pp. 524 CO4 TEE 
+29 Applications of digital 
+circuits- Adder – Half and 
+Full Adder circuit, 
+Multiplexer – many to one 
+multiplexing, 2:1, 4:1, and 
+Whitebo
+ard and 
+PPT 
+Apply TB3, Ch-26, 
+pp. 543 CO4 TEE 
+
+Course Policy  Basic Electrical and Electronics Engineering 
+ 
+8:1 data selector schematic 
+demonstration, De-
+multiplexer – concept of 
+one to many de-
+multiplexing, schematic 
+demonstration.  
+30 Analog to digital Converter, 
+Digital to analog converter 
+Whitebo
+ard and 
+PPT 
+Apply TB3, Ch-24, 
+pp. 591 CO4 TEE 
+4. Assessment  and Evaluation Scheme  
+ Internal Continuous Assessment (ICA) (50 Marks) 
+ Class Tests (20 Marks) Term-work (30 Marks) 
+Assessment 
+Component 
+Class Test-1 Class Test-2 Lab Submissions Assignments (In-
+class and Home) 
+Challenging 
+Problems 
+Marks  10 10 20 5 5 
+ 
+4.1 Internal Continuous Assessment (ICA) – 50 marks 
+Assessment of ICA comprises the following components. 
+1. Class test 1 and 2 
+ 
+a. Two class tests will be conducted as per the academic calendar. 
+b. It may be conducted for 20 marks each and scaled down to 10 marks each. 
+ 
+2. Lab Submissions (15 marks) 
+ 
+a. Lab experiments (5 marks) 
+i. Continuous assessment for laboratory experiments will be 
+conducted. There are 10 practicals, each carrying 
+weightage of 10 marks.At the end of the course, average of 
+total marks will be taken to obtain marks out of 10 and then scaled 
+down to 5. 
+ii. Discussion of your work with your peers is allowed. However, each 
+student is expected to submit his/her original work. Submissions 
+which are very similar will be marked zero. Assessment of the lab 
+work will be carried out based on parameters like timely 
+completion of lab work file, understanding of the experiment 
+performed, originality in the work, involvement of the student, 
+regularity, discipline etc. during the session. 
+ 
+ 
+ 
+ 
+Course Policy  Basic Electrical and Electronics Engineering 
+ 
+                           The rubrics for evaluation of each experiment is as follows: 
+ 
+b.  Lab test and viva (15 marks)-Lab test will be conducted based on the 
+concepts     learnt. Viva will be based on the syllabus topic. Lab test will 
+be of 10 marks and viva will be of 5 marks. 
+ 
+3. Assignment (5 marks)-Tutorials will be given to the students 
+consisting of mostly numerical problems for home assignment or 
+classwork submission. 
+4. Implementation of a challenging problem (group activity) (5 
+marks) 
+Faculty will make group of 2-3 students. 
+ 
+i. Identify a project based on some topic relevant to the course 
+ii. Course faculty will approval the project topic 
+iii. Request students to implement it on any software platform 
+(Multisim, Tinker Cad etc.) 
+iv. Assessment will be based on the methodology used to implement 
+and understanding of the project. 
+ 
+4.2  Term End Examination (TEE) – (100 marks scaled down to 50) 
+A written examination of 100 marks for three hours’ duration will be conducted for 
+the course as per the academic calendar. 
+Marks obtained scaled down to 50. There will be 7 questions (each question will be 
+20 marks). Q1 will be compulsory and any 4 from the remaining to be solved.  
+ 
+ 
+4.3  Course Passing Criteria 
+4.3.1 ICA (50 marks) – No minimum marks 
+4.3.2 TEE (100 marks scaled to 50) – 40% required for passing 
+4.3.3 (ICA + TEE) (100 marks)  - 40% required for passing 
+ 
+ 
+ 
+Parameter Involvement General 
+Conduct 
+Viva On time 
+submission 
+Lab 
+Man
+ual 
+Total Scaled 
+down  
+Total 
+Marks 
+2 1 2 2 3 10 5 
+Marks 
+allotted 
+       
+Course Policy  Basic Electrical and Electronics Engineering 
+ 
+4.4 Assessments and Mapping to Course Outcomes 
+ Internal Continuous Assessment (ICA) Term End 
+Examination 
+(TEE) 
+Course 
+Outcomes 
+CT-1 CT-2 Lab Submissions Assignments Challenging 
+Problems 
+TEE 
+CO-1 Y  Y Y Y Y 
+CO-2  Y Y Y Y Y 
+CO-3   Y Y  Y 
+CO-4   Y Y  Y 
+5. Laboratory details 
+The following 10 programming exercises will form the submission for laboratory coursework. 
+Each programming exercise will contain 3 to 5 programs. 
+ 
+Exp. 
+No. Week No.# Programming Topic Mapped 
+CO 
+ 1 
+a) Overview of lab exercises, platform used etc. 
+b) To determine the stated value of a resistor and 
+inductor by interpreting the color code indicated 
+on it. 
+c) To get accustomed to the function of DC power 
+supply, digital multimeter (DMM) and 
+breadboard. 
+ 
+1 2 
+a) To verify a given circuit using mesh analysis & 
+observe practically  
+b) To analyze the given circuit using nodal analysis 
+& observe practically. 
+CO1 
+2 3 To verify the principle of Superposition theorem & 
+find full load current for the given circuit practically. CO1 
+3 4 
+a) To verify Thevenin’s theorem and to find the full 
+load current for the given circuit. 
+b) To verify Norton’s theorem and to find the full load 
+current for the given circuit. 
+CO1 
+4 5 
+a) To analyze and obtain the time constant of a 
+series RL circuit for a sinusoidal waveform. 
+b) Also measure voltage across circuit elements and 
+current flowing through it. 
+c) Observe the phase relationship between applied voltage 
+and current flowing through a series RL circuit. 
+CO2 
+5 6 
+a) To analyze and obtain the time constant of a 
+series RC circuit for a sinusoidal waveform. 
+b) Also measure voltage across circuit elements and 
+current flowing through it. 
+c) Observe the phase relationship between applied 
+voltage and current flowing through series RC 
+CO2 
+Course Policy  Basic Electrical and Electronics Engineering 
+ 
+circuits. 
+CO26 7 
+a) To Study the phenomenon of resonance in RLC series 
+circuits. 
+b) Determine the resonant frequency and bandwidth of 
+the given circuit using a sinusoidal response. 
+c) Plot the curve of current against the frequency 
+(resonant curve). 
+CO2 
+7 8 To study and understand the construction of DC motor 
+and identify the parts. CO3 
+8 9 
+a) To study the characteristics of PN Junction diodes under 
+forward and reverse bias conditions. Note the cut in 
+voltage, static and dynamic resistance of diode. 
+b) To study and verify Zener diode as a voltage regulator. 
+CO4 
+9 10 
+To construct a half wave rectifier using diode and observe 
+its output waveform. 
+To construct a single phase full-wave rectifier using diode 
+and observe its output waveform. 
+CO4 
+10 11 
+Verification and interpretation of truth table for 
+AND, OR, NOT, NAND, NOR, Ex-OR, Ex-NOR 
+gates. 
+CO4 
+6. Tutorial Plan- Not applicable to BEEE 
+ 
+7. Course Material  
+Text Books (TB): 
+1. Ravish R Singh, “Basic Electrical Engineering”, McGraw Hill Education, 3rd 
+Edition, 2019. 
+2. D. C. Kulshreshtha, “Basic Electrical Engineering”, McGraw Hill Education, 1st 
+Edition 2017. 
+3. E. Hughes, “Electrical and Electronics Technology”, Pearson Education, 10th 
+Edition 2013. 
+4. Boylstad R.L., Nashelsky L., “Electronic Devices and Circuit Theory”, Pearson, 
+12th 
+Edition, 2012. 
+5. M.  Morris Mano, “Digital Logic and Computer Design”, Prentice Hall India, 10th 
+Edition 2008. 
+ 
+Reference Books: 
+1. V.  D.  Toro, “Electrical Engineering Fundamentals”, Pearson Education India, 2nd 
+Edition 2015. 
+2. Jacob Millman & Halkias, "Electronic Devices & Circuits", Tata McGraw Hill, 2nd 
+edition, 2013. 
+ 
+8. GenAI Usage 
+ 
+Course Policy  Basic Electrical and Electronics Engineering 
+ 
+8.1 Pre-class Activity: 
+Technical notes on curriculum topics: 
+ Concept of electromagnetic Mutual Induction (for study of Transformers) 
+ P and N type semiconductors (for study of diodes, transistors and their 
+applications) 
+8.2 In-Class Activity: Simple circuit design and analysis using GenAI 
+ 
+9. Academic Integrity Statement  
+Original work expected from students for all of the assigned assessment work. Copying in any 
+form not acceptable and will invite strict disciplinary action. Evaluation of corresponding 
+component will be affected proportionately in such cases. Plagiarism detection software will 
+be used to check plagiarism wherever applicable. Academic integrity is expected from 
+students in all components of course assessment. 

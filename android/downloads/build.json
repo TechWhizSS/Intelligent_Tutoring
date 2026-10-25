@@ -1,0 +1,27 @@
+{
+  "source_commit": "f8a1e1ba13ec1b40ec43f818e1a69b3574e56e29",
+  "file": "SyllabusToSong-v1.0-sunrise.apk",
+  "sha256": "f7e290221421e126821e2e55affd4d969573901e31c962db306644e1a02ff588",
+  "bytes": 11247280,
+  "built_at_utc": "2026-10-25T13:14:02.675464+00:00",
+  "version": "1.0-sunrise",
+  "min_android_api": 26,
+  "target_android_api": 36,
+  "signing": "Android debug signing; APK v2 signature verified",
+  "topics": {
+    "calculus": 38,
+    "beee": 53
+  },
+  "languages": [
+    "en",
+    "hi"
+  ],
+  "verification": {
+    "python_tests_passed": 38,
+    "ace_protocol_jvm_tests_passed": 7,
+    "robolectric_compose_tests_passed": 2,
+    "android_lint_errors": 0,
+    "physical_device_tested": false,
+    "live_educational_audio_verified": false
+  }
+}
