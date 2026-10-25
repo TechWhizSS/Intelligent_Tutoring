@@ -59,23 +59,29 @@ async function downloadGenerated(config,file){
  if(!wavInfo(data))error(503,'The GPU returned no usable WAV audio. No song was fabricated.');return data;
 }
 async function refreshSong(c,song){
+ if(song.status==='failed'&&song.task&&song.error==='The GPU returned no usable audio. No song was fabricated.'&&now()-song.taskStarted<1800)song={...song,status:'generating'};
  if(song.status!=='generating')return song;
+ let stage='connection';
  try{
   if(now()-song.taskStarted>1800)error(503,'GPU generation exceeded 30 minutes. Inspect the notebook before retrying.');
   const config=await readJSON(c.bucket,c.root+'music-connection');if(!config||config.version!==song.gpuVersion)error(503,'The GPU connection changed. Reconnect and synthesize again.');
+  stage='task status';
   const rows=await gpu(config,'/query_result',{task_id_list:[song.task]});if(!Array.isArray(rows))error(503,'Invalid GPU task response.');
-  const row=rows.find(r=>r.task_id===song.task);if(!row)return song;
-  if(row.status===2)error(503,'The GPU could not generate this song. Inspect its notebook log. No song was fabricated.');
-  if(row.status===1){
-   let outputs;try{outputs=JSON.parse(row.result)}catch{error(503,'The GPU returned an invalid audio result.')}
-   const output=outputs?.[0];if(!output?.file)error(503,'The GPU did not return an audio file.');
+  const row=rows.find(r=>r&&r.task_id===song.task);if(!row)return song;
+  if(Number(row.status)===2)error(503,'The GPU could not generate this song. Inspect its notebook log. No song was fabricated.');
+  if(Number(row.status)===1){
+   stage='result parsing';
+   let outputs;try{outputs=typeof row.result==='string'?JSON.parse(row.result):row.result}catch{error(503,'The GPU returned an invalid audio result.')}
+   const output=Array.isArray(outputs)?outputs[0]:outputs;if(!output?.file)error(503,'The GPU did not return an audio file.');
+   stage='audio download';
    const audio=await downloadGenerated(config,output.file);const key=c.songsRoot+song.id+'.wav';
+   stage='audio storage';
    await c.bucket.put(key,audio,{httpMetadata:{contentType:'audio/wav'}});
    song={...song,status:'ready',audio:key,mime:'audio/wav',audio_origin:'ACE-Step 1.5 connected GPU',error:null,provider_lyrics:typeof output.lyrics==='string'?output.lyrics.slice(0,16000):''};
    delete song.task;delete song.gpuVersion;
    await saveJSON(c.bucket,c.songsRoot+song.id+'.json',song);
   }
- }catch(e){song={...song,status:'failed',audio:null,audio_origin:null,error:e instanceof APIError?e.message:'The GPU returned no usable audio. No song was fabricated.'};await saveJSON(c.bucket,c.songsRoot+song.id+'.json',song)}
+ }catch(e){console.error(JSON.stringify({event:'song_pipeline_failure',stage,errorType:String(e?.name||'Error'),detail:String(e?.message||'').replace(/https?:\/\/[^\s]+/g,'[service URL]').replace(/Bearer\s+[^\s]+/gi,'[credential]').slice(0,180)}));song={...song,status:'failed',audio:null,audio_origin:null,error:e instanceof APIError?e.message:`Song generation failed during ${stage} (${String(e?.name||'Error').replace(/[^a-zA-Z]/g,'')}). Retry synthesis; your lyrics are saved.`};await saveJSON(c.bucket,c.songsRoot+song.id+'.json',song)}
  return song;
 }
 async function songs(c,refresh=true){const rows=await listJSON(c.bucket,c.songsRoot,key=>key.endsWith('.json'));const jsonRows=rows.filter(s=>s.id);return (refresh?await Promise.all(jsonRows.map(s=>refreshSong(c,s))):jsonRows).sort((a,b)=>b.created-a.created)}
