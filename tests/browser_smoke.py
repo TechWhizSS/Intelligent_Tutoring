@@ -50,7 +50,8 @@ def main():
                 chromium = os.getenv('CHROMIUM_PATH') or shutil.which('chromium')
                 browser = p.chromium.launch(**({'executable_path': chromium} if chromium else {}), headless=True,
                                             args=['--no-sandbox', '--autoplay-policy=no-user-gesture-required'])
-                page = browser.new_page(viewport={'width': 1440, 'height': 1080})
+                context = browser.new_context(viewport={'width':1440,'height':1080})
+                page = context.new_page()
                 errors = []
                 page.on('pageerror', lambda error: errors.append(str(error)))
                 page.goto(url)
@@ -73,6 +74,28 @@ def main():
                         wait_js(page, "document.querySelector('#toast').textContent === 'Lyrics saved.'")
                         assert page.get_by_role('button',name='Generate sung audio with ElevenLabs',exact=True).is_disabled()
                         assert page.locator('#audio-player').count() == 0
+                # Test our clipboard + same-tab navigation only; no live Gemini generation.
+                page.context.grant_permissions(['clipboard-read','clipboard-write'],origin=url)
+                handoff=page.context.new_page()
+                handoff.goto(url)
+                handoff.get_by_role('heading',name='Your learning, on repeat.').wait_for()
+                handoff.locator('#subject').select_option('beee')
+                handoff.locator('#language').select_option('hi')
+                handoff.get_by_text('View or copy the prepared prompt',exact=True).click()
+                handoff.get_by_role('button',name='Copy prompt',exact=True).click()
+                copied=handoff.evaluate('navigator.clipboard.readText()')
+                assert 'Language: Hindi' in copied and 'uploaded academic summary' in copied
+                handoff.route('https://gemini.google.com/**',lambda route:route.fulfill(status=200,content_type='text/html',body='<p>Test-only external destination; no music generated.</p>'))
+                handoff.get_by_role('button',name='Generate with Lyria',exact=True).click()
+                handoff.wait_for_url('https://gemini.google.com/app')
+                handoff.goto(url)
+                handoff.get_by_role('heading',name='Your learning, on repeat.').wait_for()
+                handoff.evaluate("Object.defineProperty(navigator.clipboard,'writeText',{configurable:true,value:()=>Promise.reject(new DOMException('Test permission denial','NotAllowedError'))})")
+                handoff.get_by_role('button',name='Generate with Lyria',exact=True).click()
+                wait_js(handoff,"document.querySelector('#lyria-prompt-details').open === true")
+                assert handoff.url.startswith(url)
+                assert handoff.locator('#lyria-prompt').input_value()
+                handoff.close()
                 with page.expect_download() as exported:
                     page.get_by_role('button', name='Export song prompt', exact=True).click()
                 assert exported.value.suggested_filename.endswith('-song-prompt.txt')
@@ -149,7 +172,7 @@ def main():
                 wait_js(page, "document.querySelector('#provider-result').textContent.includes('model weights not downloaded')")
                 assert errors == [], errors
                 browser.close()
-            print('PASS: bilingual flows for both subjects, save, ElevenLabs setup controls, notes, quizzes, all 91 report rows, CSV/audio downloads, real browser playback, uninterrupted navigation, mobile/tablet layout, admin review, credential check, no JavaScript errors.')
+            print('PASS: bilingual flows for both subjects, save, ElevenLabs setup and mobile-compatible Lyria clipboard/redirect controls, notes, quizzes, all 91 report rows, CSV/audio downloads, real browser playback, uninterrupted navigation, mobile/tablet layout, admin review, credential check, no JavaScript errors.')
         finally:
             server.terminate()
             server.wait(timeout=10)

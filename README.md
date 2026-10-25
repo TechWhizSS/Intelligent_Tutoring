@@ -1,6 +1,6 @@
-# Syllabus to Song — ElevenLabs music workspace
+# Syllabus to Song — Gemini music handoff
 
-**Current hosted section 2:** ElevenLabs only. The administrator privately connects an API key in section 2. The backend authenticates it using the subscription endpoint and submits exact reviewed lyrics through a Music v2.5 composition plan. Returned MP3 bytes are validated, stored and delivered through the browser player. No key is bundled into the browser. No other music provider or TTS is substituted. **ElevenLabs currently documents Music API access as paid-only.** No live key is supplied yet, so music generation is unverified. Under the user's free-only requirement, paid-tier accounts are blocked before music requests and no upgrade/top-up/payment calls exist.
+**Current hosted section 2:** **Generate with Lyria** prepares the selected chapter/language/settings and any edited lyrics, copies the prompt and opens Gemini in the same tab on mobile or desktop. In Gemini, select **Create music**, paste and send. No supported native Gemini URL-prefill contract was found; the app does not claim that the prompt is already pasted or that music mode is automatically selected. Clipboard denial reveals selectable prompt text and a direct link instead of losing the prompt. Actual audio is created/played in Gemini; permitted downloads can be attached to the chapter. ElevenLabs remains optional below, with its existing subscription restriction clearly displayed.
 
 A full-stack educational music studio for **MBA Tech → CE → First year → Semester I**, with all 38 uploaded Calculus topics and 53 uploaded BEEE topics indexed in order. Only English and Hindi are supported.
 
@@ -140,3 +140,12 @@ python3 scripts/build_report.py
 - `tests/`: catalogue/API/local-engine contract and browser verification.
 
 This is a single-process college-demo server. Sample passwords intentionally do not verify a college identity. Do not store real student records. A server restart marks unfinished generations failed; retry them from the library. `main` remains unchanged until the owner approves a merge.
+
+
+## Requested ElevenLabs CLI onboarding
+
+Ran `npx -y @elevenlabs/cli@latest onboard init`. It stopped at `ask_user`:
+this cloud runtime cannot receive its browser key handoff and requires a private
+`ELEVENLABS_API_KEY` environment secret or `.env.local`. Its secret file was never
+opened or printed. The user selected the Gemini fallback instead. `.env.local`
+is ignored. CLI onboarding does not remove ElevenLabs Music API billing rules.

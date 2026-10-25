@@ -6,3 +6,5 @@ __pycache__/
 runtime/
 test-results/
 .venv/
+# Local secrets written by `elevenlabs onboard`
+/.env.local
