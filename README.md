@@ -8,6 +8,12 @@ The current interface uses the Gemini website handoff only. No music API key is 
 
 **Verification boundary:** no actual generated educational song or singing quality has been verified here. Clipboard/navigation and audio attachment/player tests do not prove Gemini music generation. See [provider evidence](docs/PROVIDERS.md).
 
+## Open on your phone
+
+[Open Syllabus to Song](https://syllabus-to-song-studio.aptcat4096.chatgpt.site) in Chrome or Safari. If prompted, sign in with the ChatGPT account that owns this private site, then use the sample student login. The interface adapts to phones and tablets; no laptop or localhost link is needed.
+
+The studio uses a dark navigation rail, sage chapter banner, a dedicated Gemini prompt card, phone-sized input text and a persistent audio player. Chapter/music shortcuts move directly to the relevant controls.
+
 ## Run the website
 
 Python 3.12+ is the only requirement for the website, catalogue, SQLite library, quizzes and uploads:

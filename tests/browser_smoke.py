@@ -59,6 +59,10 @@ def main():
                 page.get_by_role('button', name='Try the sample student account').click()
                 page.get_by_role('heading', name='Your learning, on repeat.').wait_for()
                 assert page.locator('#song-select option').count() == 3, 'English and Hindi example drafts should be available'
+                page.get_by_role('button',name='Create a learning song',exact=True).click()
+                assert page.locator('#subject').evaluate('e => e === document.activeElement')
+                page.get_by_role('button',name='Go to music step',exact=True).click()
+                assert page.get_by_role('button',name='Generate with Lyria',exact=True).evaluate('e => e === document.activeElement')
                 for subject in ['calculus', 'beee']:
                     page.locator('#subject').select_option(subject)
                     for language in ['en', 'hi']:
@@ -142,11 +146,13 @@ def main():
                     page.get_by_role('link', name='Download', exact=True).click()
                 assert download.value.suggested_filename.endswith('.wav')
                 page.get_by_role('button', name='Song studio', exact=True).click()
-                for width in [390, 768]:
+                for width in [320, 390, 768]:
                     page.set_viewport_size({'width': width, 'height': 844})
                     page.evaluate('window.scrollTo(0,0)')
                     page.screenshot(path=str(OUTPUT / f'studio-{width}.png'), full_page=True)
                     overflow=page.evaluate("""() => [...document.querySelectorAll('body *')].filter(e=>e.getBoundingClientRect().right>window.innerWidth+1 && getComputedStyle(e).position!=='fixed' && !e.closest('.nav')).map(e=>({tag:e.tagName,cls:e.className,width:e.getBoundingClientRect().width,right:e.getBoundingClientRect().right})).slice(0,40)""")
+                    if width <= 390:
+                        assert float(page.locator('#subject').evaluate('e => parseFloat(getComputedStyle(e).fontSize)')) >= 16, 'Phone fields should avoid automatic input zoom'
                     assert not page.evaluate('document.documentElement.scrollWidth > window.innerWidth'), f'Mobile overflow at {width}px, document width {page.evaluate("document.documentElement.scrollWidth")}: {overflow}'
                 page.get_by_role('button', name='Sign out', exact=True).click()
                 page.locator('#sap').fill('admin')
