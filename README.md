@@ -1,6 +1,6 @@
-# Syllabus to Song — Gemini music workspace
+# Syllabus to Song — ElevenLabs music workspace
 
-**Current section 2 workflow:** Gemini / Lyria only. Click **Open Gemini / sign in**, copy the reviewed prompt, choose **Create music** in Gemini, and generate there. Download the permitted MP3 and attach it to the chapter. An optional iframe preview is available, but Google can block embedding/sign-in. There is no automatic control of Gemini's consumer website, no automatic song import, no Google credentials collected by this app, and no paid API configured. Sonauto was removed at the user's request. The legacy ACE-Step backend and its setup documentation remain for existing integrations; its synthesis button is no longer the section 2 music workflow.
+**Current hosted section 2:** ElevenLabs only. The administrator privately connects an API key in section 2. The backend authenticates it using the subscription endpoint and submits exact reviewed lyrics through a Music v2.5 composition plan. Returned MP3 bytes are validated, stored and delivered through the browser player. No key is bundled into the browser. No other music provider or TTS is substituted. **ElevenLabs currently documents Music API access as paid-only.** No live key is supplied yet, so music generation is unverified. Under the user's free-only requirement, paid-tier accounts are blocked before music requests and no upgrade/top-up/payment calls exist.
 
 A full-stack educational music studio for **MBA Tech → CE → First year → Semester I**, with all 38 uploaded Calculus topics and 53 uploaded BEEE topics indexed in order. Only English and Hindi are supported.
 

@@ -63,3 +63,31 @@ automatic import is claimed. Google documents music generation and MP3 downloads
 at https://support.google.com/gemini/answer/16901237 . The official Lyria API has
 no free tier; the user requires no payment/card verification. Sonauto controls
 were removed. Legacy ACE-Step APIs remain available to existing connections.
+
+
+## Current section 2: official ElevenLabs only
+
+The rejected AI Music API trial adapter was not committed or deployed. The
+current hosted path uses only api.elevenlabs.io/v1/music with music_v2_5,
+composition_plan.chunks, exact reviewed lyric text, duration_ms and English
+positive_styles/negative_styles. It uses xi-api-key authentication, a fixed MP3
+output format, bounded response reading, MP3 header validation, persistent R2
+storage and the existing authenticated audio routes. No lyrics are truncated.
+Each chunk is 3–120 seconds; totals remain within the official 10 minute limit.
+Genre/mood/vocal delivery/BPM are style preferences; duration and lyrics are
+native composition-plan fields. Hindi pronunciation still needs listening review.
+
+The administrator enters the key in the section 2 password field; it is stored
+server-side and never returned in status responses or committed. GET
+/v1/user/subscription verifies the key, but does not certify Music permission.
+Official current documentation says Music API access requires a paid user.
+The user requests free-only resources: the app rejects paid tiers before calling
+music, performs no purchase or upgrade, and clearly surfaces a free account's
+401/402/403/quota response. There is no TTS or alternative-provider fallback.
+
+No actual ElevenLabs key has been supplied. Protocol tests use fixture responses
+and isolated MP3 bytes, not generated songs. Actual account eligibility, vocal
+output and audio quality remain unverified. Sources checked 25 October 2026:
+https://elevenlabs.io/docs/cookbooks/music/quickstart
+https://elevenlabs.io/docs/api-reference/music/compose
+https://elevenlabs.io/docs/eleven-api/guides/how-to/music/composition-plans

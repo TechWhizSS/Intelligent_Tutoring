@@ -56,4 +56,23 @@ try{
  const generated=await call(ready.audioUrl);assert.equal(generated.status,200);assert.equal(generated.body.byteLength,bytes.length);
  assert.ok(!JSON.stringify(ready).includes('gpuVersion'));
 }finally{globalThis.fetch=nativeFetch}
+
+// Official ElevenLabs protocol. These are controlled fixtures, not live songs.
+assert.equal((await call('/api/admin/elevenlabs',{apiKey:'bad\nheader-key'})).status,400);
+let elevenTier='free',musicCalls=0,blockMusic=true;
+globalThis.fetch=async(url,options={})=>{
+ assert.ok(url.startsWith('https://api.elevenlabs.io/v1/'));assert.equal(options.headers['xi-api-key'],'test-only-eleven-key');
+ if(url.endsWith('/user/subscription'))return new Response(JSON.stringify({tier:elevenTier,character_count:0,character_limit:10000}));
+ if(url.includes('/music?')){musicCalls++;if(blockMusic)return new Response('{}',{status:403});const body=JSON.parse(options.body);assert.equal(body.model_id,'music_v2_5');assert.ok(body.composition_plan.chunks[0].text.includes('[Verse]'));assert.equal(body.composition_plan.chunks.reduce((n,c)=>n+c.duration_ms,0),30000);assert.ok(!body.prompt);const mp3=new Uint8Array(2000);mp3.set([73,68,51]);return new Response(mp3)}
+ throw new Error('Unexpected request');
+};
+try{
+ const checked=await call('/api/admin/elevenlabs',{apiKey:'test-only-eleven-key'});assert.equal(checked.status,200);assert.equal(checked.body.musicAccessVerified,false);
+ assert.ok(!JSON.stringify((await call('/api/providers')).body).includes('test-only-eleven-key'));
+ const song=(await call('/api/lyrics',{topic:'calc-01',language:'hi'})).body;
+ const blocked=await call(`/api/songs/${song.id}/synthesize`,{provider:'elevenlabs'});assert.equal(blocked.status,503);assert.match(blocked.body.error,/paid subscription/);assert.equal((await call('/api/songs')).body.find(s=>s.id===song.id).status,'failed');
+ elevenTier='starter';const before=musicCalls;assert.equal((await call(`/api/songs/${song.id}/synthesize`,{provider:'elevenlabs'})).status,503);assert.equal(musicCalls,before); // no paid-tier call under free-only authorization
+ elevenTier='free';blockMusic=false;
+ const ready=await call(`/api/songs/${song.id}/synthesize`,{provider:'elevenlabs'});assert.equal(ready.status,200);assert.equal(ready.body.status,'ready');assert.equal(ready.body.audio_origin,'ElevenLabs Music v2.5');assert.equal((await call(ready.body.audioUrl)).body.byteLength,2000);
+}finally{globalThis.fetch=nativeFetch}
 console.log('PASS hosted API: 91 topics, bilingual drafts/quizzes, persistent sessions/library/uploads, audio ranges, GPU protocol/authentication, owner isolation and honest blockers. Audio is an isolated fixture.');
