@@ -1,4 +1,6 @@
-# Syllabus to Song — free ACE-Step edition
+# Syllabus to Song — Gemini music workspace
+
+**Current section 2 workflow:** Gemini / Lyria only. Click **Open Gemini / sign in**, copy the reviewed prompt, choose **Create music** in Gemini, and generate there. Download the permitted MP3 and attach it to the chapter. An optional iframe preview is available, but Google can block embedding/sign-in. There is no automatic control of Gemini's consumer website, no automatic song import, no Google credentials collected by this app, and no paid API configured. Sonauto was removed at the user's request. The legacy ACE-Step backend and its setup documentation remain for existing integrations; its synthesis button is no longer the section 2 music workflow.
 
 A full-stack educational music studio for **MBA Tech → CE → First year → Semester I**, with all 38 uploaded Calculus topics and 53 uploaded BEEE topics indexed in order. Only English and Hindi are supported.
 

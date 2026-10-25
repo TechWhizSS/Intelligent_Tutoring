@@ -49,3 +49,17 @@ The website administrator uploads the notebook connection file. Its URL is restr
 No paid model subscription is introduced. Colab is a Google-hosted compute notebook, **not a Google AI API integration**. Free GPUs are limited and can be unavailable or disconnected. An account owner must start the notebook and retain its session. Codex cannot sign into that account or allocate a Colab GPU on their behalf. This cloud host must permit the generated tunnel host; existing network restrictions are not bypassed.
 
 **Verification boundary:** REST/security tests use clearly isolated fixtures. The notebook cells compile and the browser connection UI is tested. No user-run GPU is currently connected, no live song has been returned here, and notebook execution, vocals and musical quality are not claimed verified. The free local CPU option remains available when its model downloads are allowed.
+
+
+## Current Gemini-only section 2
+
+The requested Gemini workspace provides a direct link to gemini.google.com,
+reviewed prompt copying, an optional sandboxed iframe preview, and attachment of
+the actual downloaded MP3. Google controls whether its page and Google sign-in
+can render in a frame. Preview mounting tests do not establish successful live
+embedding. A separate-tab link remains available. No third-party Google sign-in
+is reimplemented, no account session is collected, and no website automation or
+automatic import is claimed. Google documents music generation and MP3 downloads
+at https://support.google.com/gemini/answer/16901237 . The official Lyria API has
+no free tier; the user requires no payment/card verification. Sonauto controls
+were removed. Legacy ACE-Step APIs remain available to existing connections.

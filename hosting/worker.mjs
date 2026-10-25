@@ -1,6 +1,6 @@
 /* Hosted version of the Python API: persistent R2 records + free ACE-Step GPU.
    No CPU model, TTS, oscillator fallback or fabricated educational audio. */
-const HEADERS={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'same-origin','Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"};
+const HEADERS={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'same-origin','Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self' blob:; frame-src https://gemini.google.com; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"};
 class APIError extends Error {constructor(status,message){super(message);this.status=status}}
 const error=(status,message)=>{throw new APIError(status,message)};
 const response=(value,status=200,headers={})=>new Response(JSON.stringify(value),{status,headers:{...HEADERS,'Content-Type':'application/json; charset=utf-8',...headers}});

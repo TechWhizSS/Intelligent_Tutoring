@@ -58,6 +58,12 @@ def main():
                 page.get_by_role('button', name='Try the sample student account').click()
                 page.get_by_role('heading', name='Your learning, on repeat.').wait_for()
                 assert page.locator('#song-select option').count() == 3, 'English and Hindi example drafts should be available'
+                # Verify our embedding controls, not Google's willingness to be embedded.
+                page.route('https://gemini.google.com/**',lambda route:route.abort())
+                page.get_by_role('button',name='Try Gemini inside this page',exact=True).click()
+                assert page.get_by_title('Gemini external website preview').get_attribute('src')=='https://gemini.google.com'
+                page.get_by_role('button',name='Close preview',exact=True).click()
+                assert page.locator('#external-music-preview iframe').count()==0
                 for subject in ['calculus', 'beee']:
                     page.locator('#subject').select_option(subject)
                     for language in ['en', 'hi']:
@@ -71,8 +77,8 @@ def main():
                         page.locator('#lyrics').fill(original + '\nReviewed for demo')
                         page.get_by_role('button', name='Save lyrics', exact=True).click()
                         wait_js(page, "document.querySelector('#toast').textContent === 'Lyrics saved.'")
-                        page.get_by_role('button', name='Synthesize sung music', exact=True).click()
-                        wait_js(page, "document.querySelector('#toast').textContent.includes('No song was fabricated')")
+                        assert page.get_by_role('link', name='Open Gemini / sign in ↗').get_attribute('href') == 'https://gemini.google.com'
+                        assert page.get_by_role('button',name='Copy prompt for Gemini',exact=True).count()==1
                         assert page.locator('#audio-player').count() == 0
                 with page.expect_download() as exported:
                     page.get_by_role('button', name='Export song prompt', exact=True).click()
@@ -150,7 +156,7 @@ def main():
                 wait_js(page, "document.querySelector('#provider-result').textContent.includes('model weights not downloaded')")
                 assert errors == [], errors
                 browser.close()
-            print('PASS: bilingual flows for both subjects, save, honest synthesis blocker, notes, quizzes, all 91 report rows, CSV/audio downloads, real browser playback, uninterrupted navigation, mobile/tablet layout, admin review, credential check, no JavaScript errors.')
+            print('PASS: bilingual flows for both subjects, save, Gemini handoff/preview controls, notes, quizzes, all 91 report rows, CSV/audio downloads, real browser playback, uninterrupted navigation, mobile/tablet layout, admin review, credential check, no JavaScript errors.')
         finally:
             server.terminate()
             server.wait(timeout=10)
