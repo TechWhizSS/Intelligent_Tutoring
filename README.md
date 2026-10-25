@@ -8,6 +8,10 @@ The current interface uses the Gemini website handoff only. No music API key is 
 
 **Verification boundary:** no actual generated educational song or singing quality has been verified here. Clipboard/navigation and audio attachment/player tests do not prove Gemini music generation. See [provider evidence](docs/PROVIDERS.md).
 
+## Compact project report
+
+[Illustrated report: website + Android app (PDF)](docs/report/Syllabus_to_Song_Compact_Report.pdf) · [Editable Word report](docs/report/Syllabus_to_Song_Compact_Report.docx). Includes feature screenshots, both delivery links, tests and the actual music-generation status.
+
 ## Native Android app
 
 [**Download the Android APK**](https://github.com/TechWhizSS/Intelligent_Tutoring/raw/refs/heads/codex/development/android/downloads/SyllabusToSong-v1.0-sunrise.apk) · [Install instructions](android/downloads/README.md)
