@@ -12,7 +12,7 @@ The current interface uses the Gemini website handoff only. No music API key is 
 
 [Open Syllabus to Song](https://syllabus-to-song-studio.aptcat4096.chatgpt.site) in Chrome or Safari. If prompted, sign in with the ChatGPT account that owns this private site, then use the sample student login. The interface adapts to phones and tablets; no laptop or localhost link is needed.
 
-The studio uses a dark navigation rail, sage chapter banner, a dedicated Gemini prompt card, phone-sized input text and a persistent audio player. Chapter/music shortcuts move directly to the relevant controls.
+The studio uses a warm terracotta navigation rail, sunrise-orange chapter banner, a dedicated Gemini prompt card, phone-sized input text and a persistent audio player. Chapter/music shortcuts move directly to the relevant controls.
 
 ## Run the website
 
