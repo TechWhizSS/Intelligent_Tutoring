@@ -64,6 +64,13 @@ for(const [status,code,expected] of [[401,'missing_permissions',/User: Read/],[4
  assert.equal(failed.status,503);assert.match(failed.body.error,expected);assert.ok(!JSON.stringify(failed.body).includes('private-provider-message'));
 }
 globalThis.fetch=nativeFetch;
+// HTTP 400 occurs during account checks too; safely expose the provider reason.
+globalThis.fetch=async()=>new Response(JSON.stringify({detail:{status:'bad_request',message:'Example validation reason test-only-eleven-key Bearer another-secret https://private.example/path'}}),{status:400});
+const rejected400=await call('/api/admin/elevenlabs',{apiKey:'test-only-eleven-key'});
+assert.match(rejected400.body.error,/account check \(HTTP 400; bad_request\)/);assert.match(rejected400.body.error,/Example validation reason/);assert.ok(!rejected400.body.error.includes('test-only-eleven-key'));assert.ok(!rejected400.body.error.includes('another-secret'));assert.ok(!rejected400.body.error.includes('private.example'));
+globalThis.fetch=async()=>new Response(JSON.stringify({detail:[{loc:['body','composition_plan'],msg:'Invalid plan',input:'private-input-should-not-appear'}]}),{status:422});
+const rejected422=await call('/api/admin/elevenlabs',{apiKey:'test-only-eleven-key'});assert.match(rejected422.body.error,/body: composition_plan: Invalid plan/);assert.ok(!rejected422.body.error.includes('private-input'));
+globalThis.fetch=nativeFetch;
 // Official ElevenLabs protocol. These are controlled fixtures, not live songs.
 assert.equal((await call('/api/admin/elevenlabs',{apiKey:'bad\nheader-key'})).status,400);
 let elevenTier='free',musicCalls=0,blockMusic=true;

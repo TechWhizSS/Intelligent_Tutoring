@@ -63,7 +63,7 @@ async function downloadGenerated(config,file){
 async function elevenFetch(key,path,body){
  let r;try{r=await fetch('https://api.elevenlabs.io/v1/'+path,{method:body?'POST':'GET',headers:{'xi-api-key':key,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,redirect:'manual',signal:AbortSignal.timeout(body?180000:30000)})}catch{error(503,'ElevenLabs could not be reached. No automatic retry or payment was made.')}
  if(!r.ok){
-  let detail;try{const raw=await r.text();if(raw.length<16000)detail=JSON.parse(raw)?.detail}catch{}
+  let detail,provider;try{const raw=await r.text();if(raw.length<16000){provider=JSON.parse(raw);detail=provider?.detail}}catch{}
   const status=typeof detail?.status==='string'?detail.status:'';
   if(['missing_permissions','missing_permission'].includes(status))error(503,path==='user/subscription'?'ElevenLabs key is missing User: Read (user_read). Edit this key in ElevenLabs, enable User Read, save, then reconnect.':'ElevenLabs key is missing the Music generation permission. Edit the key permissions, save, then reconnect.');
   if(['invalid_api_key','api_key_not_found','invalid_authorization_header'].includes(status))error(503,'ElevenLabs says this API key is invalid. Copy the full secret API key, not its key ID. Create a replacement if it expired or was revoked.');
@@ -72,7 +72,16 @@ async function elevenFetch(key,path,body){
   if(path==='user/subscription'&&r.status===403)error(503,'ElevenLabs denied the account check (HTTP 403). Check User Read permission and any workspace or IP restrictions on this key. Music access has not been tested.');
   if([402,403].includes(r.status))error(503,'ElevenLabs blocked Music API access for this account. Its official Music API currently requires a paid subscription. No upgrade or payment was made.');
   if(r.status===429)error(503,'ElevenLabs quota or rate limit reached. No audio was generated.');
-  error(503,'ElevenLabs music request failed (HTTP '+r.status+'). No audio was fabricated.');
+  if([400,422].includes(r.status)){
+   const operation=path==='user/subscription'?'account check':'music generation';
+   let message=typeof detail==='string'?detail:typeof detail?.message==='string'?detail.message:typeof provider?.message==='string'?provider.message:'';
+   if(Array.isArray(detail))message=detail.slice(0,3).map(d=>[...(Array.isArray(d.loc)?d.loc:[]),typeof d.msg==='string'?d.msg:'invalid field'].join(': ')).join('; ');
+   // Show only the bounded explanation, never validation input objects or credentials.
+   message=message.replaceAll(key,'[REDACTED]').replaceAll(encodeURIComponent(key),'[REDACTED]').replace(/(?:Bearer|xi-api-key)\s*[:=]?\s*[^\s,;]+/gi,'[REDACTED]').replace(/https?:\/\/[^\s]+/g,'[service URL]').replace(/[\r\n]/g,' ').slice(0,320);
+   const code=/^[a-z_]{1,60}$/.test(status)&&!status.includes(key)?status:'';
+   error(503,'ElevenLabs rejected the '+operation+' (HTTP '+r.status+(code?'; '+code:'')+'). '+(message||'The provider supplied no readable explanation. Check that the key belongs to the ElevenLabs API workspace.'));
+  }
+  error(503,'ElevenLabs '+(path==='user/subscription'?'account check':'music request')+' failed (HTTP '+r.status+'). No audio was fabricated.');
  }
  return r;
 }
