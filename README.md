@@ -17,7 +17,7 @@ git switch codex/development
 python3 -m app.server
 ```
 
-Open localhost:8000 or your cloud host's authenticated preview for port 8000. A public hosting deployment has not been created.
+Open localhost:8000 or your cloud host's authenticated preview for port 8000. A separate Sites-hosted edition is provided for opening in Chrome; its Worker backend uses persistent R2 storage and the official free GPU API. The local Python backend and SQLite implementation remain intact. See `hosting/README.md` for deployment details.
 
 - Student: any SAP ID containing 3–30 letters/digits/underscores/hyphens and any nonempty sample password.
 - Sample account: click **Try the sample student account**. It includes Calculus and BEEE drafts in English and Hindi, without fake audio.
