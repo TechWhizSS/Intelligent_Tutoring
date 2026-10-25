@@ -57,32 +57,35 @@ try{
  assert.ok(!JSON.stringify(ready).includes('gpuVersion'));
 }finally{globalThis.fetch=nativeFetch}
 
+// Key IDs must never be sent upstream as secrets.
+let idNetworkCalls=0;globalThis.fetch=async()=>{idNetworkCalls++;throw new Error('Must not be called for a key ID')};
+const idRejected=await call('/api/admin/elevenlabs',{apiKey:'53b4f50a-just-an-id'});assert.equal(idRejected.status,400);assert.match(idRejected.body.error,/beginning sk_/);assert.equal(idNetworkCalls,0);globalThis.fetch=nativeFetch;
 // Provider error codes must be distinguished without echoing secret messages.
 for(const [status,code,expected] of [[401,'missing_permissions',/User: Read/],[401,'invalid_api_key',/full secret API key/],[403,'paid_plan_required',/paid subscription/]]){
  globalThis.fetch=async()=>new Response(JSON.stringify({detail:{status:code,message:'private-provider-message-do-not-echo'}}),{status});
- const failed=await call('/api/admin/elevenlabs',{apiKey:'test-only-eleven-key'});
+ const failed=await call('/api/admin/elevenlabs',{apiKey:'sk_test_only_eleven_key'});
  assert.equal(failed.status,503);assert.match(failed.body.error,expected);assert.ok(!JSON.stringify(failed.body).includes('private-provider-message'));
 }
 globalThis.fetch=nativeFetch;
 // HTTP 400 occurs during account checks too; safely expose the provider reason.
-globalThis.fetch=async()=>new Response(JSON.stringify({detail:{status:'bad_request',message:'Example validation reason test-only-eleven-key Bearer another-secret https://private.example/path'}}),{status:400});
-const rejected400=await call('/api/admin/elevenlabs',{apiKey:'test-only-eleven-key'});
-assert.match(rejected400.body.error,/account check \(HTTP 400; bad_request\)/);assert.match(rejected400.body.error,/Example validation reason/);assert.ok(!rejected400.body.error.includes('test-only-eleven-key'));assert.ok(!rejected400.body.error.includes('another-secret'));assert.ok(!rejected400.body.error.includes('private.example'));
+globalThis.fetch=async()=>new Response(JSON.stringify({detail:{status:'bad_request',message:'Example validation reason sk_test_only_eleven_key Bearer another-secret https://private.example/path'}}),{status:400});
+const rejected400=await call('/api/admin/elevenlabs',{apiKey:'sk_test_only_eleven_key'});
+assert.match(rejected400.body.error,/account check \(HTTP 400; bad_request\)/);assert.match(rejected400.body.error,/Example validation reason/);assert.ok(!rejected400.body.error.includes('sk_test_only_eleven_key'));assert.ok(!rejected400.body.error.includes('another-secret'));assert.ok(!rejected400.body.error.includes('private.example'));
 globalThis.fetch=async()=>new Response(JSON.stringify({detail:[{loc:['body','composition_plan'],msg:'Invalid plan',input:'private-input-should-not-appear'}]}),{status:422});
-const rejected422=await call('/api/admin/elevenlabs',{apiKey:'test-only-eleven-key'});assert.match(rejected422.body.error,/body: composition_plan: Invalid plan/);assert.ok(!rejected422.body.error.includes('private-input'));
+const rejected422=await call('/api/admin/elevenlabs',{apiKey:'sk_test_only_eleven_key'});assert.match(rejected422.body.error,/body: composition_plan: Invalid plan/);assert.ok(!rejected422.body.error.includes('private-input'));
 globalThis.fetch=nativeFetch;
 // Official ElevenLabs protocol. These are controlled fixtures, not live songs.
 assert.equal((await call('/api/admin/elevenlabs',{apiKey:'bad\nheader-key'})).status,400);
 let elevenTier='free',musicCalls=0,blockMusic=true;
 globalThis.fetch=async(url,options={})=>{
- assert.ok(url.startsWith('https://api.elevenlabs.io/v1/'));assert.equal(options.headers['xi-api-key'],'test-only-eleven-key');
+ assert.ok(url.startsWith('https://api.elevenlabs.io/v1/'));assert.equal(options.headers['xi-api-key'],'sk_test_only_eleven_key');
  if(url.endsWith('/user/subscription'))return new Response(JSON.stringify({tier:elevenTier,character_count:0,character_limit:10000}));
  if(url.includes('/music?')){musicCalls++;if(blockMusic)return new Response('{}',{status:403});const body=JSON.parse(options.body);assert.equal(body.model_id,'music_v2_5');assert.ok(body.composition_plan.chunks[0].text.includes('[Verse]'));assert.equal(body.composition_plan.chunks.reduce((n,c)=>n+c.duration_ms,0),30000);assert.ok(!body.prompt);const mp3=new Uint8Array(2000);mp3.set([73,68,51]);return new Response(mp3)}
  throw new Error('Unexpected request');
 };
 try{
- const checked=await call('/api/admin/elevenlabs',{apiKey:'test-only-eleven-key'});assert.equal(checked.status,200);assert.equal(checked.body.musicAccessVerified,false);
- assert.ok(!JSON.stringify((await call('/api/providers')).body).includes('test-only-eleven-key'));
+ const checked=await call('/api/admin/elevenlabs',{apiKey:'sk_test_only_eleven_key'});assert.equal(checked.status,200);assert.equal(checked.body.musicAccessVerified,false);
+ assert.ok(!JSON.stringify((await call('/api/providers')).body).includes('sk_test_only_eleven_key'));
  const song=(await call('/api/lyrics',{topic:'calc-01',language:'hi'})).body;
  const blocked=await call(`/api/songs/${song.id}/synthesize`,{provider:'elevenlabs'});assert.equal(blocked.status,503);assert.match(blocked.body.error,/paid subscription/);assert.equal((await call('/api/songs')).body.find(s=>s.id===song.id).status,'failed');
  elevenTier='starter';const before=musicCalls;assert.equal((await call(`/api/songs/${song.id}/synthesize`,{provider:'elevenlabs'})).status,503);assert.equal(musicCalls,before); // no paid-tier call under free-only authorization

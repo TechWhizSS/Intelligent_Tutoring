@@ -66,6 +66,7 @@ async function elevenFetch(key,path,body){
   let detail,provider;try{const raw=await r.text();if(raw.length<16000){provider=JSON.parse(raw);detail=provider?.detail}}catch{}
   const status=typeof detail?.status==='string'?detail.status:'';
   if(['missing_permissions','missing_permission'].includes(status))error(503,path==='user/subscription'?'ElevenLabs key is missing User: Read (user_read). Edit this key in ElevenLabs, enable User Read, save, then reconnect.':'ElevenLabs key is missing the Music generation permission. Edit the key permissions, save, then reconnect.');
+  if(status==='api_key_id_used_as_api_key')error(503,'A key ID was supplied instead of the secret API key. Create a new ElevenLabs key and copy the secret beginning sk_ from its creation screen.');
   if(['invalid_api_key','api_key_not_found','invalid_authorization_header'].includes(status))error(503,'ElevenLabs says this API key is invalid. Copy the full secret API key, not its key ID. Create a replacement if it expired or was revoked.');
   if(['paid_plan_required','music_requires_paid_subscription','subscription_required'].includes(status))error(503,'ElevenLabs requires a paid subscription for Music API access. No upgrade or payment was made.');
   if(r.status===401)error(503,'ElevenLabs returned HTTP 401. Check the full secret key, its expiry, and User Read permission for the account check. No key was saved.');
@@ -187,7 +188,7 @@ async function dispatch(request,env){
   if(path==='/api/logout'){await bucket.delete(sessionKey);return response({ok:true},200,{'Set-Cookie':'session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0'})}
   if(path==='/api/admin/elevenlabs'){
    admin();if(body.disconnect===true){await bucket.delete(root+'elevenlabs');return response({configured:false})}
-   const key=body.apiKey;if(typeof key!=='string'||key.length<10||key.length>512||/[^\x21-\x7e]/.test(key))error(400,'Enter a valid private ElevenLabs API key.');
+   const key=body.apiKey;if(typeof key!=='string'||!key.startsWith('sk_')||key.length<13||key.length>512||/[^\x21-\x7e]/.test(key))error(400,'Paste the full secret ElevenLabs API key beginning sk_. A key ID from the key list cannot authenticate. Create a new key and copy its secret from the creation screen.');
    const account=await boundedJSON(await elevenFetch(key,'user/subscription'));if(typeof account.tier!=='string')error(503,'ElevenLabs returned an unknown subscription response.');
    await saveJSON(bucket,root+'elevenlabs',{key,tier:account.tier});return response({configured:true,tier:account.tier,musicAccessVerified:false,note:'Key authenticated. Music API permission remains unverified; official access requires a paid plan. Free-only mode will not call paid-tier accounts.'});
   }
