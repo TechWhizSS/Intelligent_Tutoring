@@ -19,18 +19,6 @@ def build(destination):
     assets={}
     for name,mime in [('index.html','text/html; charset=utf-8'),('style.css','text/css; charset=utf-8'),('app.js','text/javascript; charset=utf-8')]:
         text=(ROOT/'static'/name).read_text()
-        if name=='app.js':
-            text=text.replace('Free local AI music · no subscriptions or API keys.','Free ACE-Step music · connect your own free GPU.')
-            text=text.replace('Use local CPU engine','Disconnect GPU')
-            text=text.replace('Local CPU engine selected.','GPU disconnected.')
-            text=text.replace('Free local AI ready · generation needs review','Free GPU configured · generation needs review')
-            text=text.replace('Connect a free GPU or install local model files','Connect your free GPU to enable singing')
-            text=text.replace('In Connections, link your free GPU notebook or install ACE-Step locally.','In Connections, link your free GPU notebook.')
-            text=text.replace('Local CPU or your own free Colab GPU.','Your own free Colab GPU, connected to this hosted website.')
-            text=text.replace('Open-source ACE-Step. Local CPU or your own free Colab GPU.','Open-source ACE-Step on your own free Colab GPU.')
-            text=text.replace('Local AI ready','GPU configured').replace('Models required','GPU connection required')
-            text=text.replace('Start with 30 seconds on CPU.','Start with a 30-second song on your connected GPU.')
-            text=text.replace('Local inference runs offline after model setup. A Colab GPU needs','This hosted edition connects to the official GPU API. A Colab GPU needs')
         assets['/' if name=='index.html' else '/'+name]={'mime':mime,'text':text}
     sources={}
     for item in content.CATALOGUE['sources']:

@@ -9,11 +9,17 @@ records replace local SQLite/files only in the hosted edition. Sites owns the
 outer owner-private ChatGPT sign-in; the requested sample SAP login remains
 inside the app. Records are isolated by the Sites visitor ID and SAP ID.
 
-The hosted edition supports administrator uploads/review, private notebook
-connection uploads, the official free ACE-Step API, editable lyrics, asynchronous
-job polling, audio persistence, byte-range downloads and the complete syllabus
-report. It cannot execute the C++ CPU model in a Worker; it clearly requires a
-connected GPU before synthesis. It never fabricates audio.
+The current interface offers **Generate with Lyria** as its only music route:
+it copies the chapter prompt and opens Gemini, where the user selects Create
+music, pastes and sends. No native URL prefill or automatic audio import is
+claimed. A permitted downloaded MP3 can be attached to a saved lyric draft.
+
+The hosted edition retains administrator material uploads/review, editable
+lyrics, audio persistence, byte-range downloads and the complete syllabus
+report. Legacy ACE-Step API routes remain for existing records and protocol
+tests, but have no generation/setup controls in the interface. The retired
+provider adapter and account-check route are removed; loading provider status
+deletes its old private credential for that visitor. It never fabricates audio.
 
 ## Reproduce the package and tests
 

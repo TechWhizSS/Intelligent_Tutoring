@@ -72,7 +72,8 @@ def main():
                         page.locator('#lyrics').fill(original + '\nReviewed for demo')
                         page.get_by_role('button', name='Save lyrics', exact=True).click()
                         wait_js(page, "document.querySelector('#toast').textContent === 'Lyrics saved.'")
-                        assert page.get_by_role('button',name='Generate sung audio with ElevenLabs',exact=True).is_disabled()
+                        assert 'elevenlabs' not in page.locator('body').inner_text().lower()
+                        assert page.get_by_role('button',name='Generate with Lyria',exact=True).is_enabled()
                         assert page.locator('#audio-player').count() == 0
                 # Test our clipboard + same-tab navigation only; no live Gemini generation.
                 page.context.grant_permissions(['clipboard-read','clipboard-write'],origin=url)
@@ -159,20 +160,13 @@ def main():
                 page.get_by_role('button', name='Approve reviewed excerpt', exact=True).click()
                 page.get_by_text('Admin-approved supplemental material', exact=True).wait_for()
                 page.get_by_role('button', name='Connections', exact=True).click()
-                page.locator('#gpu-form').wait_for()
-                assert page.get_by_role('link',name='free Colab singing notebook ↗').count()==1
-                # An invalid connection file is rejected as data before any network call.
-                page.locator('#gpu-file').set_input_files({'name':'song-service.env','mimeType':'text/plain','buffer':b'NOT_A_CONNECTION=do-not-execute'})
-                page.get_by_role('button',name='Connect and test GPU',exact=True).click()
-                wait_js(page,"document.querySelector('#toast').textContent.includes('not a supported notebook connection file')")
-                assert page.locator('#gpu-file').input_value()!=''
-                page.get_by_role('button',name='Use local CPU engine',exact=True).click()
-                wait_js(page,"document.querySelector('#toast').textContent === 'Local CPU engine selected.'")
-                page.get_by_role('button', name='Check free engine setup', exact=True).click()
-                wait_js(page, "document.querySelector('#provider-result').textContent.includes('model weights not downloaded')")
+                page.get_by_role('heading',name='Make your soundtrack in Gemini.').wait_for()
+                assert page.get_by_role('button',name='Generate with Lyria',exact=True).is_enabled()
+                assert page.locator('input[type=password]').count()==0
+                assert 'elevenlabs' not in page.locator('body').inner_text().lower()
                 assert errors == [], errors
                 browser.close()
-            print('PASS: bilingual flows for both subjects, save, ElevenLabs setup and mobile-compatible Lyria clipboard/redirect controls, notes, quizzes, all 91 report rows, CSV/audio downloads, real browser playback, uninterrupted navigation, mobile/tablet layout, admin review, credential check, no JavaScript errors.')
+            print('PASS: bilingual flows for both subjects, save, Gemini-only music controls and mobile-compatible Lyria clipboard/redirect controls, notes, quizzes, all 91 report rows, CSV/audio downloads, real browser playback, uninterrupted navigation, mobile/tablet layout, admin review, no API-key forms, no JavaScript errors.')
         finally:
             server.terminate()
             server.wait(timeout=10)

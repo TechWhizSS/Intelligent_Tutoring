@@ -59,53 +59,10 @@ async function downloadGenerated(config,file){
  if(!wavInfo(data))error(503,'The GPU returned no usable WAV audio. No song was fabricated.');return data;
 }
 
-// Official ElevenLabs Music API only. No TTS, paid upgrades or credit purchases.
-async function elevenFetch(key,path,body){
- let r;try{r=await fetch('https://api.elevenlabs.io/v1/'+path,{method:body?'POST':'GET',headers:{'xi-api-key':key,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,redirect:'manual',signal:AbortSignal.timeout(body?180000:30000)})}catch{error(503,'ElevenLabs could not be reached. No automatic retry or payment was made.')}
- if(!r.ok){
-  let detail,provider;try{const raw=await r.text();if(raw.length<16000){provider=JSON.parse(raw);detail=provider?.detail}}catch{}
-  const status=typeof detail?.status==='string'?detail.status:'';
-  if(['missing_permissions','missing_permission'].includes(status))error(503,path==='user/subscription'?'ElevenLabs key is missing User: Read (user_read). Edit this key in ElevenLabs, enable User Read, save, then reconnect.':'ElevenLabs key is missing the Music generation permission. Edit the key permissions, save, then reconnect.');
-  if(status==='api_key_id_used_as_api_key')error(503,'A key ID was supplied instead of the secret API key. Create a new ElevenLabs key and copy the secret beginning sk_ from its creation screen.');
-  if(['invalid_api_key','api_key_not_found','invalid_authorization_header'].includes(status))error(503,'ElevenLabs says this API key is invalid. Copy the full secret API key, not its key ID. Create a replacement if it expired or was revoked.');
-  if(['paid_plan_required','music_requires_paid_subscription','subscription_required'].includes(status))error(503,'ElevenLabs requires a paid subscription for Music API access. No upgrade or payment was made.');
-  if(r.status===401)error(503,'ElevenLabs returned HTTP 401. Check the full secret key, its expiry, and User Read permission for the account check. No key was saved.');
-  if(path==='user/subscription'&&r.status===403)error(503,'ElevenLabs denied the account check (HTTP 403). Check User Read permission and any workspace or IP restrictions on this key. Music access has not been tested.');
-  if([402,403].includes(r.status))error(503,'ElevenLabs blocked Music API access for this account. Its official Music API currently requires a paid subscription. No upgrade or payment was made.');
-  if(r.status===429)error(503,'ElevenLabs quota or rate limit reached. No audio was generated.');
-  if([400,422].includes(r.status)){
-   const operation=path==='user/subscription'?'account check':'music generation';
-   let message=typeof detail==='string'?detail:typeof detail?.message==='string'?detail.message:typeof provider?.message==='string'?provider.message:'';
-   if(Array.isArray(detail))message=detail.slice(0,3).map(d=>[...(Array.isArray(d.loc)?d.loc:[]),typeof d.msg==='string'?d.msg:'invalid field'].join(': ')).join('; ');
-   // Show only the bounded explanation, never validation input objects or credentials.
-   message=message.replaceAll(key,'[REDACTED]').replaceAll(encodeURIComponent(key),'[REDACTED]').replace(/(?:Bearer|xi-api-key)\s*[:=]?\s*[^\s,;]+/gi,'[REDACTED]').replace(/https?:\/\/[^\s]+/g,'[service URL]').replace(/[\r\n]/g,' ').slice(0,320);
-   const code=/^[a-z_]{1,60}$/.test(status)&&!status.includes(key)?status:'';
-   error(503,'ElevenLabs rejected the '+operation+' (HTTP '+r.status+(code?'; '+code:'')+'). '+(message||'The provider supplied no readable explanation. Check that the key belongs to the ElevenLabs API workspace.'));
-  }
-  error(503,'ElevenLabs '+(path==='user/subscription'?'account check':'music request')+' failed (HTTP '+r.status+'). No audio was fabricated.');
- }
- return r;
-}
-function elevenPlan(song){
- const s=song.settings;let parts=song.lyrics.split(/\n(?=\[)/).filter(t=>t.trim());if(!parts.length)error(400,'Save reviewed lyrics first.');
- while(parts.length<Math.ceil(s.length/120)){const at=parts.findIndex(p=>p.split('\n').length>2);if(at<0)error(400,'Add more lyric sections or select a shorter song.');const lines=parts[at].split('\n'),mid=Math.ceil(lines.length/2);parts.splice(at,1,lines.slice(0,mid).join('\n'),lines.slice(mid).join('\n'))}
- if(parts.length>30||s.length*1000<parts.length*3000)error(400,'Choose a longer duration or fewer lyric sections (each needs at least 3 seconds).');
- const duration=Math.floor(s.length*1000/parts.length);return {model_id:'music_v2_5',composition_plan:{chunks:parts.map((text,i)=>({text,duration_ms:duration+(i===parts.length-1?s.length*1000-duration*parts.length:0),positive_styles:[s.genre,s.mood,s.vocal+' sung vocals','Clearly articulated '+(song.language==='hi'?'Hindi':'English')+' singing','expressive melody','drums bass and instrumental accompaniment','catchy chorus',s.tempo+' BPM',s.instructions||'educational song'],negative_styles:['spoken narration','text to speech','instrumental only'],context_adherence:'high'}))}};
-}
-async function elevenGenerate(c,song,key){
- const account=await boundedJSON(await elevenFetch(key,'user/subscription'));
- // The user permits free resources only; reject paid-tier calls instead of charging.
- if(account.tier!=='free')error(503,'Free-only mode: this ElevenLabs account is not on the free tier. No music call was made.');
- const plan=elevenPlan(song);const r=await elevenFetch(key,'music?output_format=mp3_44100_128',plan);
- const reader=r.body.getReader(),parts=[];let size=0;while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>32000000){await reader.cancel();error(503,'ElevenLabs returned an oversized song.')}parts.push(value)}
- const audio=new Uint8Array(size);let offset=0;for(const part of parts){audio.set(part,offset);offset+=part.length}
- if(size<1000||!(audio[0]===255||String.fromCharCode(...audio.slice(0,3))==='ID3'))error(503,'ElevenLabs returned no valid MP3 audio.');
- const filename=c.songsRoot+song.id+'.mp3';await c.bucket.put(filename,audio,{httpMetadata:{contentType:'audio/mpeg'}});return {...song,status:'ready',audio:filename,mime:'audio/mpeg',audio_origin:'ElevenLabs Music v2.5',error:null};
-}
 async function refreshSong(c,song){
  if(song.status==='failed'&&song.task&&song.error==='The GPU returned no usable audio. No song was fabricated.'&&now()-song.taskStarted<1800)song={...song,status:'generating'};
  if(song.status!=='generating')return song;
- if(song.musicProvider==='elevenlabs'){if(now()-song.taskStarted<200)return song;const failed={...song,status:'failed',error:'ElevenLabs request timed out before audio was saved. Check the provider dashboard before retrying.'};await saveJSON(c.bucket,c.songsRoot+song.id+'.json',failed);return failed;}
+ if(!song.task){const failed={...song,status:'failed',error:'This previous generation service was removed. Create a new version in Gemini.'};delete failed.musicProvider;await saveJSON(c.bucket,c.songsRoot+song.id+'.json',failed);return failed;}
  let stage='connection';
  try{
   if(now()-song.taskStarted>1800)error(503,'GPU generation exceeded 30 minutes. Inspect the notebook before retrying.');
@@ -169,7 +126,9 @@ async function dispatch(request,env){
   if(path==='/api/me')return response({sap:c.session.sap,role:c.session.role});
   if(path==='/api/catalogue')return response(CONTENT.catalogue);
   if(path==='/api/providers'){
-   const config=await musicConfig(),all=await songs(c,false),eleven=await readJSON(bucket,root+'elevenlabs');return response({elevenlabs:{configured:!!eleven,tier:eleven?.tier||null,musicAccessVerified:all.some(s=>s.status==='ready'&&s.audio_origin==='ElevenLabs Music v2.5')},configured:!!config,backend:'gpu',mode:config?'GPU connection configured':'free GPU connection required',lyricsModel:'Local source-linked templates (editable; no LLM)',musicModel:'acestep-v15-turbo',check:await readJSON(bucket,root+'provider-check'),liveAudioVerified:all.some(s=>s.status==='ready'&&s.audio_origin==='ACE-Step 1.5 connected GPU'),blocker:config?null:'Connect your free Colab GPU in Connections to enable AI singing. No song has been fabricated. This hosted website cannot run a multi-gigabyte CPU model.',capabilities:'Native BPM, duration, English/Hindi language and exact saved lyrics. Genre, mood, voice and repetition are preferences. No paid API; keep your free GPU notebook running.'});
+   // Remove the retired provider credential from this visitor's private storage.
+   await bucket.delete(root+'elevenlabs');
+   const config=await musicConfig(),all=await songs(c,false);return response({configured:!!config,backend:'gpu',mode:config?'GPU connection configured':'free GPU connection required',lyricsModel:'Local source-linked templates (editable; no LLM)',musicModel:'acestep-v15-turbo',check:await readJSON(bucket,root+'provider-check'),liveAudioVerified:all.some(s=>s.status==='ready'&&s.audio_origin==='ACE-Step 1.5 connected GPU'),blocker:config?null:'Connect your free Colab GPU in Connections to enable AI singing. No song has been fabricated. This hosted website cannot run a multi-gigabyte CPU model.',capabilities:'Native BPM, duration, English/Hindi language and exact saved lyrics. Genre, mood, voice and repetition are preferences. No paid API; keep your free GPU notebook running.'});
   }
   if(path==='/api/songs')return response((await songs(c)).map(publicSong));
   if(path==='/api/attempts')return response((await listJSON(bucket,root+'attempts/'+c.session.sap+'/')).sort((a,b)=>b.created-a.created));
@@ -186,12 +145,6 @@ async function dispatch(request,env){
  }
  if(request.method==='POST'){
   if(path==='/api/logout'){await bucket.delete(sessionKey);return response({ok:true},200,{'Set-Cookie':'session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0'})}
-  if(path==='/api/admin/elevenlabs'){
-   admin();if(body.disconnect===true){await bucket.delete(root+'elevenlabs');return response({configured:false})}
-   const key=body.apiKey;if(typeof key!=='string'||!key.startsWith('sk_')||key.length<13||key.length>512||/[^\x21-\x7e]/.test(key))error(400,'Paste the full secret ElevenLabs API key beginning sk_. A key ID from the key list cannot authenticate. Create a new key and copy its secret from the creation screen.');
-   const account=await boundedJSON(await elevenFetch(key,'user/subscription'));if(typeof account.tier!=='string')error(503,'ElevenLabs returned an unknown subscription response.');
-   await saveJSON(bucket,root+'elevenlabs',{key,tier:account.tier});return response({configured:true,tier:account.tier,musicAccessVerified:false,note:'Key authenticated. Music API permission remains unverified; official access requires a paid plan. Free-only mode will not call paid-tier accounts.'});
-  }
   if(path==='/api/admin/music-service'){
    admin();if((await listJSON(bucket,root+'songs/',key=>key.endsWith('.json'))).some(s=>s.status==='generating'))error(409,'Wait for the current song before changing the music connection.');
    if(body.local===true){await bucket.delete(root+'music-connection');await bucket.delete(root+'provider-check');return response({configured:false,liveAudioVerified:false,mode:'GPU disconnected'})}
@@ -207,12 +160,7 @@ async function dispatch(request,env){
     if(body.lyrics!==s.lyrics||JSON.stringify(next)!==JSON.stringify(s.settings)){s={...s,lyrics:body.lyrics,settings:next,status:'draft',audio:null,mime:null,provider_lyrics:null,audio_origin:null,error:null}}
    }
    if(match[2]==='synthesize'){
-    if(body.provider==='elevenlabs'){
-     const config=await readJSON(bucket,root+'elevenlabs');if(!config)error(503,'Connect an ElevenLabs API key in section 2 first.');
-     const claimed=await bucket.get(key);const pending={...s,status:'generating',musicProvider:'elevenlabs',taskStarted:now(),error:null};const claim=await bucket.put(key,JSON.stringify(pending),{onlyIf:{etagMatches:claimed.etag},httpMetadata:{contentType:'application/json'}});if(!claim)error(409,'Another request changed this song. Refresh first.');
-     try{s=await elevenGenerate(c,pending,config.key)}catch(e){s={...s,status:'failed',audio:null,error:e instanceof APIError?e.message:'ElevenLabs generation failed before usable audio was saved.'};await saveJSON(bucket,key,s);throw e}
-     await saveJSON(bucket,key,s);return response(publicSong(s));
-    }
+    if(body.provider&&body.provider!=='gpu')error(400,'This generation provider is unavailable. Use Generate with Lyria in Song studio.');
     const config=await musicConfig();if(!config)error(503,'Connect your free Colab GPU in Connections first. No song was fabricated.');
     if((await songs(c,false)).some(v=>v.status==='generating'))error(409,'The free GPU is already generating a song. Wait for it to finish.');
     const result=await gpu(config,'/release_task',musicRequest(s));if(typeof result?.task_id!=='string'||result.task_id.length>200)error(503,'The GPU returned no task ID.');

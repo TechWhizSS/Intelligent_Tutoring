@@ -1,12 +1,12 @@
 # Syllabus to Song — Gemini music handoff
 
-**Current hosted section 2:** **Generate with Lyria** prepares the selected chapter/language/settings and any edited lyrics, copies the prompt and opens Gemini in the same tab on mobile or desktop. In Gemini, select **Create music**, paste and send. No supported native Gemini URL-prefill contract was found; the app does not claim that the prompt is already pasted or that music mode is automatically selected. Clipboard denial reveals selectable prompt text and a direct link instead of losing the prompt. Actual audio is created/played in Gemini; permitted downloads can be attached to the chapter. ElevenLabs remains optional below, with its existing subscription restriction clearly displayed.
+**Current hosted section 2:** **Generate with Lyria** prepares the selected chapter/language/settings and any edited lyrics, copies the prompt and opens Gemini in the same tab on mobile or desktop. In Gemini, select **Create music**, paste and send. No supported native Gemini URL-prefill contract was found; the app does not claim that the prompt is already pasted or that music mode is automatically selected. Clipboard denial reveals selectable prompt text and a direct link instead of losing the prompt. Actual audio is created/played in Gemini; permitted downloads can be attached to the chapter. Gemini is the only music-generation option in the interface; no provider key form is shown.
 
 A full-stack educational music studio for **MBA Tech → CE → First year → Semester I**, with all 38 uploaded Calculus topics and 53 uploaded BEEE topics indexed in order. Only English and Hindi are supported.
 
-The music backend is **ACE-Step 1.5**, an open-source text-and-lyrics-to-music model. Choose the **official API on your free Colab GPU**, using the same technology found in the uploaded Android app, or a local CPU through `acestep.cpp`. There is **no paid music API or subscription**. The GPU connection uses a private, locally generated key, not a purchased provider key. The app sends reviewed lyrics to the selected AI engine for sung vocals, melody and accompaniment. It never substitutes speech synthesis or a test fixture for a generated song.
+The current interface uses the Gemini website handoff only. No music API key is required. Your Gemini account controls eligibility and free music allowances. The retained ACE-Step local/GPU backend is legacy developer functionality, not an option in the current UI.
 
-**Current boundary:** the free CPU engine has been compiled in this Codex environment, but downloading its three public model files fails with proxy HTTP 403 because Hugging Face is blocked. No actual generated song or singing quality is claimed yet. The new GPU adapter and notebook are tested at the protocol/browser level; a user-run Colab GPU has not been connected or executed here. The website reports its setup state. See [provider evidence](docs/PROVIDERS.md) and [captured readiness](docs/provider-check.json).
+**Verification boundary:** no actual generated educational song or singing quality has been verified here. Clipboard/navigation and audio attachment/player tests do not prove Gemini music generation. See [provider evidence](docs/PROVIDERS.md).
 
 ## Run the website
 
@@ -26,7 +26,7 @@ Open localhost:8000 or your cloud host's authenticated preview for port 8000. A 
 - Demo admin: `admin` / `demo-admin`; change `ADMIN_PASSWORD` before sharing.
 - Runtime database, model files and generated audio are in Git-ignored `runtime/`. Set `APP_DATA_DIR` for a persistent host volume.
 
-## Use the uploaded app’s GPU technology (recommended)
+## Legacy GPU backend (developer reference)
 
 The uploaded `design-experience-main.zip` contains an Android singing client, a Python bridge and an ACE-Step Colab notebook. Its separate React web demo plays oscillator-generated instrumentals; that demo does not synthesize lyrics into singing. We integrated the **official GPU API approach** into this existing website, preserving both subjects and all 91 topics. See [the inspection report](docs/UPLOADED_APP_REVIEW.md).
 
@@ -40,7 +40,7 @@ Cloud network settings must allow the notebook’s `*.trycloudflare.com` tunnel 
 
 Private settings live in `runtime/music-service.json` (mode 0600, Git-ignored), or `APP_DATA_DIR` when configured. **Use local CPU engine** removes the uploaded GPU connection. For an existing official local server, export `LOCAL_MUSIC_URL=http://127.0.0.1:8001` and `LOCAL_MUSIC_API_KEY` before starting; host variables take precedence. Do not point this adapter at the Android bridge on port 8787: it expects the official ACE-Step API on port 8001.
 
-## Enable free local CPU singing
+## Legacy local CPU backend (developer reference)
 
 The model download is a one-time setup step. Inference then runs offline.
 
@@ -75,26 +75,14 @@ FREE_MUSIC_TIMEOUT=1800
 
 `FREE_MUSIC_HOME`, `FREE_MUSIC_ENGINE` and `FREE_MUSIC_MODELS` can select another local installation. No secret is required. CPU inference may take many minutes. Start with a **30-second song**; one generation is allowed at a time to avoid exhausting RAM. The observed cloud host has 8 GB RAM and two allocated CPU cores, with no GPU. Successful inference performance has not yet been measured on it.
 
-## Make a song
+## Make a song with Gemini
 
-1. Select Calculus or BEEE, chapter/unit, topic, English/Hindi and music preferences.
-2. Click **Generate lyrics**. Drafts are free, source-linked local templates, clearly labelled supplemental and not LLM-generated. Rolle's Theorem and Electrical Circuit Elements include short, original bilingual featured lyrics; other topics use uploaded references and supplemental Hindi explanations.
-3. Review/edit the lyrics and save. For a 30-second song keep the wording short; an AI may not deliver every word of a long chapter summary.
-4. Click **Synthesize sung music**. The app invokes the selected local or connected GPU AI with the exact saved lyrics, native BPM, duration and vocal-language fields, plus a caption for genre, mood and delivery.
-5. When actual audio exists, load it in the browser player, listen, seek and download the WAV. Check formula pronunciation, Hindi delivery and academic meaning before submission.
+1. Select Calculus or BEEE, chapter/topic, English or Hindi and music preferences.
+2. Generate and edit a supplemental source-linked lyric draft, then choose **Generate with Lyria**.
+3. The prompt is copied and Gemini opens in the same tab. Choose **Create music**, paste and send. If clipboard access is denied, copy the displayed prompt manually before opening Gemini.
+4. Listen in Gemini. Download an MP3 where permitted, return to the saved chapter and use **Attach your own permitted audio** to play/download it in this library.
 
-No model setup check certifies singing quality. Missing models, memory errors, timeouts and empty/invalid audio remain visible failures. Genre, voice, mood and formula repetition are model preferences; exact adherence is not promised.
-
-To run both subject examples against a running website:
-
-```sh
-python3 scripts/demo.py
-python3 scripts/demo.py --language hi
-python3 scripts/demo.py --generate-audio --length 30
-python3 scripts/demo.py --generate-audio --language hi --length 30
-```
-
-Sign in as `submission-demo` with any password to see these records. Actual generated outputs are saved to `runtime/demo-output/`. The `--live` spelling remains an alias for `--generate-audio`, with no paid provider behind it.
+Gemini controls available models, song lengths, eligibility and free quotas. The app does not automatically prefill Google’s page, click Generate, import audio or claim an API integration.
 
 ## Other working features
 
@@ -102,7 +90,7 @@ The app includes source-linked chapter notes/formula summaries, supplemental wor
 
 Admins can upload PDF/TXT/MD/CSV originals and academic excerpts. Excerpts become supplemental chapter material only after review/approval; they never act as code or application instructions. Uploaded originals, BEEE lecture/lab scope, course outcomes and Calculus song associations are preserved. Popular-song mappings are metadata only, never copied recordings.
 
-**Export song prompt** and permission-confirmed audio uploads remain available as optional utilities. The primary generation path is ACE-Step through the website’s Synthesize button, using the selected CPU/GPU backend.
+**Export song prompt** and permission-confirmed audio uploads remain available as optional utilities. The current music path is the Gemini handoff described above.
 
 ## Verification
 
@@ -140,12 +128,3 @@ python3 scripts/build_report.py
 - `tests/`: catalogue/API/local-engine contract and browser verification.
 
 This is a single-process college-demo server. Sample passwords intentionally do not verify a college identity. Do not store real student records. A server restart marks unfinished generations failed; retry them from the library. `main` remains unchanged until the owner approves a merge.
-
-
-## Requested ElevenLabs CLI onboarding
-
-Ran `npx -y @elevenlabs/cli@latest onboard init`. It stopped at `ask_user`:
-this cloud runtime cannot receive its browser key handoff and requires a private
-`ELEVENLABS_API_KEY` environment secret or `.env.local`. Its secret file was never
-opened or printed. The user selected the Gemini fallback instead. `.env.local`
-is ignored. CLI onboarding does not remove ElevenLabs Music API billing rules.
